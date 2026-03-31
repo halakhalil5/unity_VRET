@@ -1,0 +1,24 @@
+# Blender 5.1.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Rock_Material_Grey_2
+Ns 4.219105
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Color.png
+map_Bump -bm 1.000000 C:/Normal Map.png
+
+newmtl goat_june1324_2_Full_u1_v1
+Ns 4.999998
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Bump -bm 1.000000 C:/goat_june1324_2_Full_u1_v1_normal.png

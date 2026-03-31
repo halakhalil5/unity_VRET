@@ -1,0 +1,14 @@
+//demo
+{
+  "assets": [
+    {
+      "id": "chair_wood_basic",
+      "addressableKey": "Furniture/Chairs/chair_wood_basic",
+      "category": "furniture",
+      "tags": ["chair", "wooden", "indoor", "seating"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.6, "y": 0.9, "z": 0.6 }
+    }
+  ]
+}

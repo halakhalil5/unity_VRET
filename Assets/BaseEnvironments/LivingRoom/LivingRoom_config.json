@@ -1,0 +1,161 @@
+{
+  "environmentId": "living_room",
+  "displayName": "Living Room",
+  "phobiaType": "arachnophobia",
+  "description": "Familiar indoor living room — couch, coffee table, bookshelf, window",
+
+  "intensityLevels": {
+    "0.0":  "Clean room, no spiders, warm lighting, peaceful",
+    "0.25": "One small spider visible on wall in distance",
+    "0.5":  "Several spiders on walls and floor, some movement",
+    "0.75": "Many spiders, larger, crawling on furniture toward player",
+    "1.0":  "Spiders everywhere, large, fast, dropping from ceiling"
+  },
+
+  "spawnPoints": [
+    { "id": "sp_couch_left",    "position": { "x": -2.0, "y": 0.0, "z":  2.0 }, "type": "ground"  },
+    { "id": "sp_couch_right",   "position": { "x":  2.0, "y": 0.0, "z":  2.0 }, "type": "ground"  },
+    { "id": "sp_wall_left",     "position": { "x": -4.0, "y": 1.5, "z":  0.0 }, "type": "wall"    },
+    { "id": "sp_wall_right",    "position": { "x":  4.0, "y": 1.5, "z":  0.0 }, "type": "wall"    },
+    { "id": "sp_bookshelf",     "position": { "x":  3.5, "y": 1.0, "z": -2.0 }, "type": "wall"    },
+    { "id": "sp_ceiling_center","position": { "x":  0.0, "y": 3.0, "z":  0.0 }, "type": "ceiling" },
+    { "id": "sp_window",        "position": { "x": -3.5, "y": 1.2, "z": -1.0 }, "type": "wall"    },
+    { "id": "sp_floor_center",  "position": { "x":  0.0, "y": 0.0, "z":  0.0 }, "type": "ground"  }
+  ],
+
+  "intensityParameters": {
+
+    "spiders": {
+      "countAtZero":          0,
+      "countAtMax":           15,
+      "sizeAtZero":           0.2,
+      "sizeAtMax":            2.0,
+      "speedAtZero":          0.0,
+      "speedAtMax":           3.0,
+      "minDistanceAtZero":    6.0,
+      "minDistanceAtMax":     0.3,
+      "webVisibleAbove":      0.35,
+      "dropFromCeilingAbove": 0.65,
+      "crawlOnFurnitureAbove":0.45
+    },
+
+    "lighting": {
+      "ambientIntensityAtZero":  1.2,
+      "ambientIntensityAtMax":   0.25,
+      "fogDensityAtZero":        0.0,
+      "fogDensityAtMax":         0.04,
+      "fogColorAtMax":           "#0A0A0A",
+      "lampFlickerAbove":        0.6,
+      "lampFlickerSpeedAtMax":   3.0,
+      "windowLightAtZero":       1.0,
+      "windowLightAtMax":        0.1
+    },
+
+    "audio": {
+      "roomToneAtZero":          0.3,
+      "roomToneAtMax":           0.0,
+      "skitteringVolumeAtZero":  0.0,
+      "skitteringVolumeAtMax":   0.9,
+      "webRustleAbove":          0.4,
+      "heartbeatAudioAbove":     0.7,
+      "heartbeatVolumeAtMax":    0.6
+    },
+
+    "environment": {
+      "cobwebsVisibleAbove":     0.3,
+      "cobwebsDensityAtMax":     1.0,
+      "dustParticlesAtZero":     0,
+      "dustParticlesAtMax":      60,
+      "furnitureShadowsSharpness": 0.8
+    },
+
+    "postProcessing": {
+      "vignetteIntensityAtZero": 0.15,
+      "vignetteIntensityAtMax":  0.65,
+      "saturationAtZero":        1.0,
+      "saturationAtMax":         0.2,
+      "contrastAtMax":           1.5,
+      "chromaticAberrationAbove":0.75
+    }
+  },
+
+  "therapistAddableAssets": [
+    {
+      "id":       "spider_small",
+      "label":    "Small House Spider",
+      "tags":     ["spider", "small", "house", "arachnid"],
+      "category": "creature",
+      "maxCount": 20
+    },
+    {
+      "id":       "spider_large",
+      "label":    "Large Spider",
+      "tags":     ["spider", "large", "tarantula", "arachnid"],
+      "category": "creature",
+      "maxCount": 6
+    },
+    {
+      "id":       "cobweb_corner",
+      "label":    "Corner Cobweb",
+      "tags":     ["cobweb", "web", "corner", "spider"],
+      "category": "prop",
+      "maxCount": 8
+    },
+    {
+      "id":       "cobweb_ceiling",
+      "label":    "Ceiling Cobweb",
+      "tags":     ["cobweb", "web", "ceiling", "spider"],
+      "category": "prop",
+      "maxCount": 6
+    },
+    {
+      "id":       "egg_sac",
+      "label":    "Spider Egg Sac",
+      "tags":     ["egg", "sac", "spider", "nest"],
+      "category": "prop",
+      "maxCount": 4
+    }
+  ],
+
+  "therapistModifiableParameters": [
+    {
+      "id":      "timeOfDay",
+      "label":   "Time of Day",
+      "type":    "enum",
+      "options": ["morning", "afternoon", "evening", "night"],
+      "default": "afternoon"
+    },
+    {
+      "id":      "windowState",
+      "label":   "Window",
+      "type":    "enum",
+      "options": ["open", "closed", "curtains_drawn"],
+      "default": "open"
+    },
+    {
+      "id":      "roomClutter",
+      "label":   "Room Clutter",
+      "type":    "float",
+      "min":     0.0,
+      "max":     1.0,
+      "default": 0.3,
+      "description": "More clutter means more hiding spots for spiders"
+    },
+    {
+      "id":      "soundscape",
+      "label":   "Background Sound",
+      "type":    "enum",
+      "options": ["tv_on", "quiet", "silent"],
+      "default": "quiet"
+    }
+  ],
+
+  "safetySettings": {
+    "panicButtonEnabled":        true,
+    "panicButtonAction":         "freeze_all_triggers",
+    "autoReduceIfHRAbove":       130,
+    "autoReduceIfGSRAbove":      2.5,
+    "minimumBreakBetweenPeaks":  30,
+    "maxSessionDurationSeconds": 3600
+  }
+}
