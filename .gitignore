@@ -22,3 +22,16 @@ UserSettings/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Large 3D model files
+*.obj
+*.fbx
+*.blend
+*.mb
+*.ma
+*.glb
+*.gltf
+
+# Large asset directories
+Assets/BaseEnvironments/
+Assets/Models/
