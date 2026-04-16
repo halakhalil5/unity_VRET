@@ -9,6 +9,7 @@ public class ScenePlacer : MonoBehaviour {
     void Awake() {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         if (sceneRoot == null) sceneRoot = transform;
     }
 

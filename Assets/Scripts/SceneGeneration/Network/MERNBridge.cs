@@ -13,6 +13,7 @@ public class MERNBridge : MonoBehaviour {
     void Awake() {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public async Task<SceneDescriptor> FetchScene(string sceneId) {

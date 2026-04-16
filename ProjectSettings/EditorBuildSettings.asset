@@ -12,8 +12,23 @@ EditorBuildSettings:
     path: Assets/BaseEnvironments/LivingRoom/LivingRoom.unity
     guid: 5becc34d60e5b6d42a85af0f5942fc43
   - enabled: 1
-    path: Assets/BaseEnvironments/Cave/Cave.unity
-    guid: 4b9487c7d30372540b9aa65804c2ade5
+    path: Assets/BaseEnvironments/Airport/Airport.unity
+    guid: bf6eec097db47a24a8f46b107ef3eef7
+  - enabled: 1
+    path: Assets/BaseEnvironments/Airplane/Airplane.unity
+    guid: 7325a0ef29a18d34bb8456b127f0b8bc
+  - enabled: 1
+    path: Assets/BaseEnvironments/Building/Building.unity
+    guid: ac42fba6981f78540b209dffa5525bef
+  - enabled: 1
+    path: Assets/BaseEnvironments/Cliff/cliff.unity
+    guid: 5875027eb9b08a8478acfca138ff7165
+  - enabled: 1
+    path: Assets/BaseEnvironments/Elevator/Elevator.unity
+    guid: 89922cca3b321674fb81f5af7ce1c28f
+  - enabled: 1
+    path: Assets/BaseEnvironments/PictureRoom/PictureRoom.unity
+    guid: 963bed45c3ac0da4aa03991ba0d4e19c
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05

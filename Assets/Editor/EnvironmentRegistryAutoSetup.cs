@@ -7,8 +7,6 @@ public static class EnvironmentRegistryAutoSetup {
     const string RegistryPath = "Assets/Resources/EnvironmentRegistry.asset";
     const string LivingRoomScenePath = "Assets/BaseEnvironments/LivingRoom/LivingRoom.unity";
     const string LivingRoomSceneName = "LivingRoom";
-    const string CaveScenePath = "Assets/BaseEnvironments/Cave/Cave.unity";
-    const string CaveSceneName = "Cave";
 
     [InitializeOnLoadMethod]
     static void EnsureRegistry() {
@@ -27,12 +25,6 @@ public static class EnvironmentRegistryAutoSetup {
         var livingRoomScene = AssetDatabase.LoadMainAssetAtPath(LivingRoomScenePath);
         if (livingRoomScene == null) {
             Debug.LogWarning("[SceneBuild] Living room scene not found at Assets/BaseEnvironments/LivingRoom/LivingRoom.unity");
-            return;
-        }
-
-        var caveScene = AssetDatabase.LoadMainAssetAtPath(CaveScenePath);
-        if (caveScene == null) {
-            Debug.LogWarning("[SceneBuild] Cave scene not found at Assets/BaseEnvironments/Cave/Cave.unity");
             return;
         }
 
@@ -57,25 +49,6 @@ public static class EnvironmentRegistryAutoSetup {
             EditorUtility.SetDirty(registry);
             AssetDatabase.SaveAssets();
             Debug.Log("[SceneBuild] Enforced living_room mapping in EnvironmentRegistry.asset");
-        }
-
-        var caveEntry = registry.environments.Find(e => e.environmentId == "cave");
-        if (caveEntry == null) {
-            caveEntry = new EnvironmentRegistry.EnvironmentEntry {
-                environmentId = "cave",
-                sceneName = CaveSceneName,
-                prefab = null
-            };
-            registry.environments.Add(caveEntry);
-            EditorUtility.SetDirty(registry);
-            AssetDatabase.SaveAssets();
-            Debug.Log("[SceneBuild] Added cave mapping to EnvironmentRegistry.asset");
-        } else {
-            caveEntry.sceneName = CaveSceneName;
-            caveEntry.prefab = null;
-            EditorUtility.SetDirty(registry);
-            AssetDatabase.SaveAssets();
-            Debug.Log("[SceneBuild] Enforced cave mapping in EnvironmentRegistry.asset");
         }
     }
 }

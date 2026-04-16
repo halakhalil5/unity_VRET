@@ -3,13 +3,18 @@
   "displayName": "Living Room",
   "phobiaType": "arachnophobia",
   "description": "Familiar indoor living room — couch, coffee table, bookshelf, window",
+  "sceneLayout": {
+    "position": { "x": 0.0, "y": 1.5, "z": 0.0 },
+    "dimensions": { "x": 8.0, "y": 3.0, "z": 4.0 },
+    "scale": { "x": 1.0, "y": 1.0, "z": 1.0 }
+  },
 
   "intensityLevels": {
-    "0.0":  "Clean room, no spiders, warm lighting, peaceful",
-    "0.25": "One small spider visible on wall in distance",
-    "0.5":  "Several spiders on walls and floor, some movement",
-    "0.75": "Many spiders, larger, crawling on furniture toward player",
-    "1.0":  "Spiders everywhere, large, fast, dropping from ceiling"
+    "0.0":  "Warm living room baseline with no visible spiders and low background stress",
+    "0.25": "Single small spider appears on a wall or shelf area at a comfortable distance",
+    "0.5":  "Multiple spiders visible across wall and floor spawn points with noticeable movement",
+    "0.75": "High spider count with larger spiders near furniture, stronger skitter audio, and reduced comfort zone",
+    "1.0":  "Maximum spider density across wall, floor, and ceiling points with fast motion and peak threat perception"
   },
 
   "spawnPoints": [
@@ -21,6 +26,57 @@
     { "id": "sp_ceiling_center","position": { "x":  0.0, "y": 3.0, "z":  0.0 }, "type": "ceiling" },
     { "id": "sp_window",        "position": { "x": -3.5, "y": 1.2, "z": -1.0 }, "type": "wall"    },
     { "id": "sp_floor_center",  "position": { "x":  0.0, "y": 0.0, "z":  0.0 }, "type": "ground"  }
+  ],
+
+  "objects": [
+    {
+      "id": "living_room_couch",
+      "name": "Couch",
+      "type": "furniture",
+      "role": "seat",
+      "position": { "x": -2.0, "y": 0.0, "z": 2.0 },
+      "scale": { "x": 2.8, "y": 1.0, "z": 1.2 }
+    },
+    {
+      "id": "living_room_coffee_table",
+      "name": "Coffee Table",
+      "type": "furniture",
+      "role": "surface",
+      "position": { "x": 0.0, "y": 0.0, "z": 1.1 },
+      "scale": { "x": 1.2, "y": 0.6, "z": 0.7 }
+    },
+    {
+      "id": "living_room_bookshelf",
+      "name": "Bookshelf",
+      "type": "storage",
+      "role": "wall_anchor",
+      "position": { "x": 3.5, "y": 0.0, "z": -2.0 },
+      "scale": { "x": 1.4, "y": 2.2, "z": 0.5 }
+    },
+    {
+      "id": "living_room_window",
+      "name": "Window",
+      "type": "opening",
+      "role": "wall_anchor",
+      "position": { "x": -3.5, "y": 1.2, "z": -1.0 },
+      "scale": { "x": 1.8, "y": 1.2, "z": 0.1 }
+    },
+    {
+      "id": "living_room_floor_center",
+      "name": "Floor Center",
+      "type": "surface",
+      "role": "floor_anchor",
+      "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "scale": { "x": 8.0, "y": 0.1, "z": 4.0 }
+    },
+    {
+      "id": "living_room_ceiling_center",
+      "name": "Ceiling Center",
+      "type": "surface",
+      "role": "ceiling_anchor",
+      "position": { "x": 0.0, "y": 3.0, "z": 0.0 },
+      "scale": { "x": 8.0, "y": 0.1, "z": 4.0 }
+    }
   ],
 
   "intensityParameters": {

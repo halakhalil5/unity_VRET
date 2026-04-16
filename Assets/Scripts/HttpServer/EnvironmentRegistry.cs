@@ -7,7 +7,7 @@ public class EnvironmentRegistry : ScriptableObject {
 
     [System.Serializable]
     public class EnvironmentEntry {
-        public string environmentId;   // matches JSON string e.g. "indoor-room"
+        public string environmentId;   // matches JSON string e.g. "living_room"
         public string sceneName;       // Unity scene name to load
         public GameObject prefab;      // OR a prefab if not using separate scenes
     }

@@ -16,6 +16,24 @@ MonoBehaviour:
   - environmentId: living_room
     sceneName: LivingRoom
     prefab: {fileID: 0}
-  - environmentId: cave
-    sceneName: Cave
+  - environmentId: airport
+    sceneName: Airport
+    prefab: {fileID: 0}
+  - environmentId: airplane
+    sceneName: Airplane
+    prefab: {fileID: 0}
+  - environmentId: building
+    sceneName: Building
+    prefab: {fileID: 0}
+  - environmentId: cliff
+    sceneName: cliff
+    prefab: {fileID: 0}
+  - environmentId: elevator
+    sceneName: Elevator
+    prefab: {fileID: 0}
+  - environmentId: picture_room
+    sceneName: PictureRoom
+    prefab: {fileID: 0}
+  - environmentId: relaxation_scene
+    sceneName: RelaxationScene
     prefab: {fileID: 0}

@@ -16,15 +16,15 @@ public class AIGenerationResolver : MonoBehaviour {
     void Awake() {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public async Task<GameObject> TryResolve(SceneAsset asset) {
-        string glbUrl = await TryGenerateDirectUrl(asset);
-        if (glbUrl == null) {
-            string jobId = await SubmitGenerationJob(asset);
-            if (jobId == null) return null;
-            glbUrl = await PollForCompletion(jobId);
-        }
+        string jobId = await SubmitGenerationJob(asset);
+        if (jobId == null)
+            return null;
+
+        string glbUrl = await PollForCompletion(jobId);
 
         if (glbUrl == null) return null;
 
@@ -37,33 +37,6 @@ public class AIGenerationResolver : MonoBehaviour {
         await ManifestUpdater.Instance.RegisterNewAsset(asset, savedPath, bounds);
 
         return go;
-    }
-
-    async Task<string> TryGenerateDirectUrl(SceneAsset asset) {
-        string prompt = BuildPrompt(asset);
-        var body = JsonUtility.ToJson(new AIGenerationRequest { prompt = prompt });
-        var content = new StringContent(body, Encoding.UTF8, "application/json");
-
-        try {
-            var response = await http.PostAsync($"{aiApiBase}/generate_shap_e", content);
-            if (!response.IsSuccessStatusCode) {
-                var errorBody = await response.Content.ReadAsStringAsync();
-                Debug.LogWarning($"[AIResolver] Direct endpoint returned {(int)response.StatusCode}: {errorBody}");
-                return null;
-            }
-
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonUtility.FromJson<AIDirectResponse>(json);
-            if (result == null || !result.found || string.IsNullOrEmpty(result.glbUrl)) {
-                return null;
-            }
-
-            Debug.Log("[AIResolver] Resolved using direct Shape-E endpoint.");
-            return result.glbUrl;
-        } catch (System.Exception e) {
-            Debug.LogWarning($"[AIResolver] Direct generation failed: {e.Message}");
-            return null;
-        }
     }
 
     static string BuildPrompt(SceneAsset asset) {
@@ -111,6 +84,5 @@ public class AIGenerationResolver : MonoBehaviour {
 }
 
 [System.Serializable] public class AIGenerationRequest { public string prompt; }
-[System.Serializable] public class AIDirectResponse { public bool found; public string glbUrl; public string reason; }
 [System.Serializable] public class AIJobResponse    { public string jobId; }
 [System.Serializable] public class AIStatusResponse { public string state; public string glbUrl; }

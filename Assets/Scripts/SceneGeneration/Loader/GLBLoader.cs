@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ public class GLBLoader : MonoBehaviour {
     void Awake() {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public async Task<GameObject> LoadFromUrl(string url) {
@@ -50,7 +52,11 @@ public class GLBLoader : MonoBehaviour {
             return null;
         }
 
-        object gltf = Activator.CreateInstance(gltfImportType);
+        if (!TryCreateGltfImport(gltfImportType, out var gltf)) {
+            Debug.LogWarning("[GLBLoader] GLTFast found, but no compatible constructor could be used to create GltfImport.");
+            return null;
+        }
+
         MethodInfo loadMethod = FindMethod(gltfImportType, "Load", typeof(string));
         if (loadMethod == null) {
             Debug.LogWarning("[GLBLoader] GLTFast found, but no compatible Load(string) method was found.");
@@ -79,6 +85,62 @@ public class GLBLoader : MonoBehaviour {
         }
 
         return container;
+    }
+
+    static bool TryCreateGltfImport(Type gltfImportType, out object gltfImport) {
+        gltfImport = null;
+
+        try {
+            gltfImport = Activator.CreateInstance(gltfImportType);
+            if (gltfImport != null) {
+                return true;
+            }
+        } catch {
+            // Fall through and probe constructors below.
+        }
+
+        var constructors = gltfImportType
+            .GetConstructors(BindingFlags.Instance | BindingFlags.Public)
+            .OrderBy(c => c.GetParameters().Length)
+            .ToArray();
+
+        for (int i = 0; i < constructors.Length; i++) {
+            var ctor = constructors[i];
+            var parameters = ctor.GetParameters();
+            var args = new object[parameters.Length];
+            bool canInvoke = true;
+
+            for (int p = 0; p < parameters.Length; p++) {
+                var parameter = parameters[p];
+                if (parameter.HasDefaultValue) {
+                    args[p] = parameter.DefaultValue;
+                    continue;
+                }
+
+                if (parameter.ParameterType.IsValueType) {
+                    args[p] = Activator.CreateInstance(parameter.ParameterType);
+                    continue;
+                }
+
+                // Reference types/interfaces can be passed as null for optional runtime services.
+                args[p] = null;
+            }
+
+            if (!canInvoke) {
+                continue;
+            }
+
+            try {
+                gltfImport = ctor.Invoke(args);
+                if (gltfImport != null) {
+                    return true;
+                }
+            } catch {
+                // Try next constructor signature.
+            }
+        }
+
+        return false;
     }
 
     static Type FindType(string fullName) {

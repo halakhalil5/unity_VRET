@@ -1052,7 +1052,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 36e7bb0744273304ea647d579dadfac7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 112697
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 36e7bb0744273304ea647d579dadfac7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1060,7 +1060,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 36e7bb0744273304ea647d579dadfac7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 161259
+      value: 177487
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 36e7bb0744273304ea647d579dadfac7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1092,7 +1092,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 36e7bb0744273304ea647d579dadfac7, type: 3}
       propertyPath: m_Name
-      value: Untitled
+      value: livingroom
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1163,14 +1163,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1841645503}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.550713, z: 161259}
+  m_LocalRotation: {x: 0, y: -0.078459024, z: 0, w: 0.99691737}
+  m_LocalPosition: {x: 18252, y: 1, z: 77470}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1595724645}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -9, z: 0}
 --- !u!1 &1902361806
 GameObject:
   m_ObjectHideFlags: 0

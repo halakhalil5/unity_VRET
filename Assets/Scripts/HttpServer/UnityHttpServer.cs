@@ -64,13 +64,22 @@ public class UnityHttpServer : MonoBehaviour {
         string body = "";
 
         try {
+            ApplyCorsHeaders(res);
+
+            if (req.HttpMethod == "OPTIONS") {
+                res.StatusCode = 200;
+                res.ContentLength64 = 0;
+                return;
+            }
+
             // Read body
             using var reader = new StreamReader(req.InputStream, req.ContentEncoding);
             body = await reader.ReadToEndAsync();
 
-            Debug.Log($"[HttpServer] {req.HttpMethod} {req.Url.AbsolutePath}");
+            string path = NormalizePath(req.Url.AbsolutePath);
+            Debug.Log($"[HttpServer] {req.HttpMethod} {path}");
 
-            string responseJson = req.Url.AbsolutePath switch {
+            string responseJson = path switch {
                 "/status"      when req.HttpMethod == "GET"  => HandleStatus(),
                 "/build-scene" when req.HttpMethod == "POST" => await HandleBuildScene(body),
                 _ => NotFound()
@@ -146,6 +155,19 @@ public class UnityHttpServer : MonoBehaviour {
         Debug.LogError($"[HttpServer] Error: {message}");
         return JsonConvert.SerializeObject(new BuildResponse {
             status = "error", error = message });
+    }
+
+    static string NormalizePath(string path) {
+        if (string.IsNullOrEmpty(path)) return "/";
+        if (path.Length > 1 && path.EndsWith("/"))
+            return path.TrimEnd('/');
+        return path;
+    }
+
+    static void ApplyCorsHeaders(HttpListenerResponse res) {
+        res.Headers["Access-Control-Allow-Origin"] = "*";
+        res.Headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+        res.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
     }
 
     void OnApplicationQuit() {

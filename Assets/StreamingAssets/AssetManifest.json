@@ -1,13 +1,274 @@
 {
   "assets": [
     {
-      "id": "chair_wood_basic",
-      "addressableKey": "Furniture/Chairs/chair_wood_basic",
+      "id": "casual_female_g",
+      "addressableKey": "PreloadedAssets/People/casual_Female_G",
+      "category": "character",
+      "tags": ["person", "female", "casual", "character", "npc"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.7, "z": 0.4 }
+    },
+    {
+      "id": "casual_female_k",
+      "addressableKey": "PreloadedAssets/People/casual_Female_K",
+      "category": "character",
+      "tags": ["person", "female", "casual", "character", "npc"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.7, "z": 0.4 }
+    },
+    {
+      "id": "casual_male_g",
+      "addressableKey": "PreloadedAssets/People/casual_Male_G",
+      "category": "character",
+      "tags": ["person", "male", "casual", "character", "npc"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.8, "z": 0.4 }
+    },
+    {
+      "id": "casual_male_k",
+      "addressableKey": "PreloadedAssets/People/casual_Male_K",
+      "category": "character",
+      "tags": ["person", "male", "casual", "character", "npc"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.8, "z": 0.4 }
+    },
+    {
+      "id": "doctor_male_b",
+      "addressableKey": "PreloadedAssets/People/Doctor_Male_B",
+      "category": "character",
+      "tags": ["person", "male", "doctor", "professional", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.8, "z": 0.4 }
+    },
+    {
+      "id": "elder_female_a",
+      "addressableKey": "PreloadedAssets/People/elder_Female_A",
+      "category": "character",
+      "tags": ["person", "female", "elder", "elderly", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.6, "z": 0.4 }
+    },
+    {
+      "id": "little_boy_b",
+      "addressableKey": "PreloadedAssets/People/little_boy_B",
+      "category": "character",
+      "tags": ["person", "male", "child", "kid", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.35, "y": 1.0, "z": 0.3 }
+    },
+    {
+      "id": "police_female_a",
+      "addressableKey": "PreloadedAssets/People/police_Female_A",
+      "category": "character",
+      "tags": ["person", "female", "police", "officer", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.7, "z": 0.4 }
+    },
+    {
+      "id": "prosthetic_leg_girl",
+      "addressableKey": "PreloadedAssets/People/prostheticLeg_girl",
+      "category": "character",
+      "tags": ["person", "female", "child", "disability", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.35, "y": 1.1, "z": 0.3 }
+    },
+    {
+      "id": "worker_constructor_male",
+      "addressableKey": "PreloadedAssets/People/worker_Male_constructor_B",
+      "category": "character",
+      "tags": ["person", "male", "worker", "construction", "character"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 1.8, "z": 0.4 }
+    },
+    {
+      "id": "xmas_santa_hat",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/christmas/xmas_santa_hat",
+      "category": "decoration",
+      "tags": ["hat", "christmas", "xmas", "decoration", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.3, "y": 0.25, "z": 0.3 }
+    },
+    {
+      "id": "backdrop",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/backdrop",
+      "category": "decoration",
+      "tags": ["backdrop", "decoration", "background", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 3.0, "y": 2.5, "z": 0.1 }
+    },
+    {
+      "id": "building_block_a",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/building_block_A",
+      "category": "props",
+      "tags": ["block", "building", "prop", "construction"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 2.0, "y": 1.5, "z": 2.0 }
+    },
+    {
+      "id": "building_block_b",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/building_block_B",
+      "category": "props",
+      "tags": ["block", "building", "prop", "construction"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 2.0, "y": 1.5, "z": 2.0 }
+    },
+    {
+      "id": "building_block_c",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/building_block_C",
+      "category": "props",
+      "tags": ["block", "building", "prop", "construction"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 2.0, "y": 1.5, "z": 2.0 }
+    },
+    {
+      "id": "building_block_d",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/building_block_D",
+      "category": "props",
+      "tags": ["block", "building", "prop", "construction"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 2.0, "y": 1.5, "z": 2.0 }
+    },
+    {
+      "id": "bicycle",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_bicycle",
+      "category": "props",
+      "tags": ["bicycle", "vehicle", "transport", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.8, "y": 1.1, "z": 1.8 }
+    },
+    {
+      "id": "chair",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_chair",
       "category": "furniture",
-      "tags": ["chair", "wooden", "indoor", "seating"],
+      "tags": ["chair", "furniture", "seating", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.5, "y": 0.8, "z": 0.5 }
+    },
+    {
+      "id": "plant_pot",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_plantPot",
+      "category": "decoration",
+      "tags": ["plant", "pot", "decoration", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.4, "y": 0.4, "z": 0.4 }
+    },
+    {
+      "id": "round_table",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_roundTable",
+      "category": "furniture",
+      "tags": ["table", "furniture", "round", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 1.5, "y": 0.7, "z": 1.5 }
+    },
+    {
+      "id": "street_sign",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_streetSign",
+      "category": "props",
+      "tags": ["sign", "street", "outdoor", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.5, "y": 2.5, "z": 0.1 }
+    },
+    {
+      "id": "trash_bin",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_trashBin",
+      "category": "props",
+      "tags": ["trash", "bin", "garbage", "outdoor", "prop"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 0.5, "y": 0.7, "z": 0.5 }
+    },
+    {
+      "id": "plane_floor",
+      "addressableKey": "PreloadedAssets/Prefabs/PROPS/dummy props/plane_floor",
+      "category": "environment",
+      "tags": ["floor", "plane", "surface", "ground"],
+      "polyCount": "low",
+      "style": "stylized",
+      "bounds": { "x": 50.0, "y": 0.05, "z": 50.0 }
+    },
+    {
+      "id": "drill",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_drill",
+      "category": "tools",
+      "tags": ["drill", "tool", "equipment", "power tool"],
       "polyCount": "low",
       "style": "realistic",
-      "bounds": { "x": 0.6, "y": 0.9, "z": 0.6 }
+      "bounds": { "x": 0.15, "y": 0.25, "z": 0.4 }
+    },
+    {
+      "id": "hammer",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_hammer",
+      "category": "tools",
+      "tags": ["hammer", "tool", "equipment", "hand tool"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.05, "y": 0.35, "z": 0.15 }
+    },
+    {
+      "id": "hand_saw",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_handSaw",
+      "category": "tools",
+      "tags": ["saw", "tool", "equipment", "hand tool"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.1, "y": 0.2, "z": 0.6 }
+    },
+    {
+      "id": "pipe_wrench",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_pipewrench",
+      "category": "tools",
+      "tags": ["wrench", "tool", "equipment", "pipe"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.08, "y": 0.35, "z": 0.3 }
+    },
+    {
+      "id": "screwdriver",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_screwdriver",
+      "category": "tools",
+      "tags": ["screwdriver", "tool", "equipment", "hand tool"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.04, "y": 0.3, "z": 0.04 }
+    },
+    {
+      "id": "wrench",
+      "addressableKey": "PreloadedAssets/Prefabs/tools/tool_wrench",
+      "category": "tools",
+      "tags": ["wrench", "tool", "equipment", "hand tool"],
+      "polyCount": "low",
+      "style": "realistic",
+      "bounds": { "x": 0.1, "y": 0.3, "z": 0.25 }
+    },
+    {
+      "id": "spider_myoldone",
+      "addressableKey": "PreloadedAssets/Spiders/spider_myOldOne",
+      "category": "creature",
+      "tags": ["spider", "arachnid", "creature", "animal"],
+      "polyCount": "medium",
+      "style": "realistic",
+      "bounds": { "x": 0.5, "y": 0.3, "z": 0.6 }
     }
   ]
 }
