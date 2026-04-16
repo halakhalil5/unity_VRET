@@ -1,0 +1,34 @@
+﻿{
+    "id":  "drill",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_drill.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/tools/tool_drill",
+    "category":  "tools",
+    "tags":  [
+                 "drill",
+                 "tool",
+                 "equipment",
+                 "power tool"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.15,
+                   "y":  0.25,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded tools asset \u0027tool_drill\u0027 from PreloadedAssets/Prefabs/tools/tool_drill (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_drill.prefab). Use this when therapist description requests matching terms: drill, tool, equipment, power tool. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "drill",
+                                      "tool",
+                                      "equipment",
+                                      "power tool"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

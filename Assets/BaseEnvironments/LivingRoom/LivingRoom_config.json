@@ -1,217 +1,487 @@
-{
-  "environmentId": "living_room",
-  "displayName": "Living Room",
-  "phobiaType": "arachnophobia",
-  "description": "Familiar indoor living room — couch, coffee table, bookshelf, window",
-  "sceneLayout": {
-    "position": { "x": 0.0, "y": 1.5, "z": 0.0 },
-    "dimensions": { "x": 8.0, "y": 3.0, "z": 4.0 },
-    "scale": { "x": 1.0, "y": 1.0, "z": 1.0 }
-  },
-
-  "intensityLevels": {
-    "0.0":  "Warm living room baseline with no visible spiders and low background stress",
-    "0.25": "Single small spider appears on a wall or shelf area at a comfortable distance",
-    "0.5":  "Multiple spiders visible across wall and floor spawn points with noticeable movement",
-    "0.75": "High spider count with larger spiders near furniture, stronger skitter audio, and reduced comfort zone",
-    "1.0":  "Maximum spider density across wall, floor, and ceiling points with fast motion and peak threat perception"
-  },
-
-  "spawnPoints": [
-    { "id": "sp_couch_left",    "position": { "x": -2.0, "y": 0.0, "z":  2.0 }, "type": "ground"  },
-    { "id": "sp_couch_right",   "position": { "x":  2.0, "y": 0.0, "z":  2.0 }, "type": "ground"  },
-    { "id": "sp_wall_left",     "position": { "x": -4.0, "y": 1.5, "z":  0.0 }, "type": "wall"    },
-    { "id": "sp_wall_right",    "position": { "x":  4.0, "y": 1.5, "z":  0.0 }, "type": "wall"    },
-    { "id": "sp_bookshelf",     "position": { "x":  3.5, "y": 1.0, "z": -2.0 }, "type": "wall"    },
-    { "id": "sp_ceiling_center","position": { "x":  0.0, "y": 3.0, "z":  0.0 }, "type": "ceiling" },
-    { "id": "sp_window",        "position": { "x": -3.5, "y": 1.2, "z": -1.0 }, "type": "wall"    },
-    { "id": "sp_floor_center",  "position": { "x":  0.0, "y": 0.0, "z":  0.0 }, "type": "ground"  }
-  ],
-
-  "objects": [
-    {
-      "id": "living_room_couch",
-      "name": "Couch",
-      "type": "furniture",
-      "role": "seat",
-      "position": { "x": -2.0, "y": 0.0, "z": 2.0 },
-      "scale": { "x": 2.8, "y": 1.0, "z": 1.2 }
-    },
-    {
-      "id": "living_room_coffee_table",
-      "name": "Coffee Table",
-      "type": "furniture",
-      "role": "surface",
-      "position": { "x": 0.0, "y": 0.0, "z": 1.1 },
-      "scale": { "x": 1.2, "y": 0.6, "z": 0.7 }
-    },
-    {
-      "id": "living_room_bookshelf",
-      "name": "Bookshelf",
-      "type": "storage",
-      "role": "wall_anchor",
-      "position": { "x": 3.5, "y": 0.0, "z": -2.0 },
-      "scale": { "x": 1.4, "y": 2.2, "z": 0.5 }
-    },
-    {
-      "id": "living_room_window",
-      "name": "Window",
-      "type": "opening",
-      "role": "wall_anchor",
-      "position": { "x": -3.5, "y": 1.2, "z": -1.0 },
-      "scale": { "x": 1.8, "y": 1.2, "z": 0.1 }
-    },
-    {
-      "id": "living_room_floor_center",
-      "name": "Floor Center",
-      "type": "surface",
-      "role": "floor_anchor",
-      "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
-      "scale": { "x": 8.0, "y": 0.1, "z": 4.0 }
-    },
-    {
-      "id": "living_room_ceiling_center",
-      "name": "Ceiling Center",
-      "type": "surface",
-      "role": "ceiling_anchor",
-      "position": { "x": 0.0, "y": 3.0, "z": 0.0 },
-      "scale": { "x": 8.0, "y": 0.1, "z": 4.0 }
-    }
-  ],
-
-  "intensityParameters": {
-
-    "spiders": {
-      "countAtZero":          0,
-      "countAtMax":           15,
-      "sizeAtZero":           0.2,
-      "sizeAtMax":            2.0,
-      "speedAtZero":          0.0,
-      "speedAtMax":           3.0,
-      "minDistanceAtZero":    6.0,
-      "minDistanceAtMax":     0.3,
-      "webVisibleAbove":      0.35,
-      "dropFromCeilingAbove": 0.65,
-      "crawlOnFurnitureAbove":0.45
-    },
-
-    "lighting": {
-      "ambientIntensityAtZero":  1.2,
-      "ambientIntensityAtMax":   0.25,
-      "fogDensityAtZero":        0.0,
-      "fogDensityAtMax":         0.04,
-      "fogColorAtMax":           "#0A0A0A",
-      "lampFlickerAbove":        0.6,
-      "lampFlickerSpeedAtMax":   3.0,
-      "windowLightAtZero":       1.0,
-      "windowLightAtMax":        0.1
-    },
-
-    "audio": {
-      "roomToneAtZero":          0.3,
-      "roomToneAtMax":           0.0,
-      "skitteringVolumeAtZero":  0.0,
-      "skitteringVolumeAtMax":   0.9,
-      "webRustleAbove":          0.4,
-      "heartbeatAudioAbove":     0.7,
-      "heartbeatVolumeAtMax":    0.6
-    },
-
-    "environment": {
-      "cobwebsVisibleAbove":     0.3,
-      "cobwebsDensityAtMax":     1.0,
-      "dustParticlesAtZero":     0,
-      "dustParticlesAtMax":      60,
-      "furnitureShadowsSharpness": 0.8
-    },
-
-    "postProcessing": {
-      "vignetteIntensityAtZero": 0.15,
-      "vignetteIntensityAtMax":  0.65,
-      "saturationAtZero":        1.0,
-      "saturationAtMax":         0.2,
-      "contrastAtMax":           1.5,
-      "chromaticAberrationAbove":0.75
-    }
-  },
-
-  "therapistAddableAssets": [
-    {
-      "id":       "spider_small",
-      "label":    "Small House Spider",
-      "tags":     ["spider", "small", "house", "arachnid"],
-      "category": "creature",
-      "maxCount": 20
-    },
-    {
-      "id":       "spider_large",
-      "label":    "Large Spider",
-      "tags":     ["spider", "large", "tarantula", "arachnid"],
-      "category": "creature",
-      "maxCount": 6
-    },
-    {
-      "id":       "cobweb_corner",
-      "label":    "Corner Cobweb",
-      "tags":     ["cobweb", "web", "corner", "spider"],
-      "category": "prop",
-      "maxCount": 8
-    },
-    {
-      "id":       "cobweb_ceiling",
-      "label":    "Ceiling Cobweb",
-      "tags":     ["cobweb", "web", "ceiling", "spider"],
-      "category": "prop",
-      "maxCount": 6
-    },
-    {
-      "id":       "egg_sac",
-      "label":    "Spider Egg Sac",
-      "tags":     ["egg", "sac", "spider", "nest"],
-      "category": "prop",
-      "maxCount": 4
-    }
-  ],
-
-  "therapistModifiableParameters": [
-    {
-      "id":      "timeOfDay",
-      "label":   "Time of Day",
-      "type":    "enum",
-      "options": ["morning", "afternoon", "evening", "night"],
-      "default": "afternoon"
-    },
-    {
-      "id":      "windowState",
-      "label":   "Window",
-      "type":    "enum",
-      "options": ["open", "closed", "curtains_drawn"],
-      "default": "open"
-    },
-    {
-      "id":      "roomClutter",
-      "label":   "Room Clutter",
-      "type":    "float",
-      "min":     0.0,
-      "max":     1.0,
-      "default": 0.3,
-      "description": "More clutter means more hiding spots for spiders"
-    },
-    {
-      "id":      "soundscape",
-      "label":   "Background Sound",
-      "type":    "enum",
-      "options": ["tv_on", "quiet", "silent"],
-      "default": "quiet"
-    }
-  ],
-
-  "safetySettings": {
-    "panicButtonEnabled":        true,
-    "panicButtonAction":         "freeze_all_triggers",
-    "autoReduceIfHRAbove":       130,
-    "autoReduceIfGSRAbove":      2.5,
-    "minimumBreakBetweenPeaks":  30,
-    "maxSessionDurationSeconds": 3600
-  }
+﻿{
+    "environmentId":  "living_room",
+    "displayName":  "Living Room",
+    "phobiaType":  "arachnophobia",
+    "description":  "Familiar indoor living room â€” couch, coffee table, bookshelf, window",
+    "sceneLayout":  {
+                        "position":  {
+                                         "x":  0.0,
+                                         "y":  1.5,
+                                         "z":  0.0
+                                     },
+                        "dimensions":  {
+                                           "x":  8.0,
+                                           "y":  3.0,
+                                           "z":  4.0
+                                       },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  }
+                    },
+    "intensityLevels":  {
+                            "0.0":  "Warm living room baseline with no visible spiders and low background stress",
+                            "0.25":  "Single small spider appears on a wall or shelf area at a comfortable distance",
+                            "0.5":  "Multiple spiders visible across wall and floor spawn points with noticeable movement",
+                            "0.75":  "High spider count with larger spiders near furniture, stronger skitter audio, and reduced comfort zone",
+                            "1.0":  "Maximum spider density across wall, floor, and ceiling points with fast motion and peak threat perception"
+                        },
+    "spawnPoints":  [
+                        {
+                            "id":  "sp_couch_left",
+                            "position":  {
+                                             "x":  -2.0,
+                                             "y":  0.0,
+                                             "z":  2.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_couch_right",
+                            "position":  {
+                                             "x":  2.0,
+                                             "y":  0.0,
+                                             "z":  2.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_wall_left",
+                            "position":  {
+                                             "x":  -4.0,
+                                             "y":  1.5,
+                                             "z":  0.0
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_wall_right",
+                            "position":  {
+                                             "x":  4.0,
+                                             "y":  1.5,
+                                             "z":  0.0
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_bookshelf",
+                            "position":  {
+                                             "x":  3.5,
+                                             "y":  1.0,
+                                             "z":  -2.0
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_ceiling_center",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  3.0,
+                                             "z":  0.0
+                                         },
+                            "type":  "ceiling"
+                        },
+                        {
+                            "id":  "sp_window",
+                            "position":  {
+                                             "x":  -3.5,
+                                             "y":  1.2,
+                                             "z":  -1.0
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_floor_center",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  0.0,
+                                             "z":  0.0
+                                         },
+                            "type":  "ground"
+                        }
+                    ],
+    "intensityParameters":  {
+                                "spiders":  {
+                                                "countAtZero":  0,
+                                                "countAtMax":  15,
+                                                "sizeAtZero":  0.2,
+                                                "sizeAtMax":  2.0,
+                                                "speedAtZero":  0.0,
+                                                "speedAtMax":  3.0,
+                                                "minDistanceAtZero":  6.0,
+                                                "minDistanceAtMax":  0.3,
+                                                "webVisibleAbove":  0.35,
+                                                "dropFromCeilingAbove":  0.65,
+                                                "crawlOnFurnitureAbove":  0.45
+                                            },
+                                "lighting":  {
+                                                 "ambientIntensityAtZero":  1.2,
+                                                 "ambientIntensityAtMax":  0.25,
+                                                 "fogDensityAtZero":  0.0,
+                                                 "fogDensityAtMax":  0.04,
+                                                 "fogColorAtMax":  "#0A0A0A",
+                                                 "lampFlickerAbove":  0.6,
+                                                 "lampFlickerSpeedAtMax":  3.0,
+                                                 "windowLightAtZero":  1.0,
+                                                 "windowLightAtMax":  0.1
+                                             },
+                                "audio":  {
+                                              "roomToneAtZero":  0.3,
+                                              "roomToneAtMax":  0.0,
+                                              "skitteringVolumeAtZero":  0.0,
+                                              "skitteringVolumeAtMax":  0.9,
+                                              "webRustleAbove":  0.4,
+                                              "heartbeatAudioAbove":  0.7,
+                                              "heartbeatVolumeAtMax":  0.6
+                                          },
+                                "environment":  {
+                                                    "cobwebsVisibleAbove":  0.3,
+                                                    "cobwebsDensityAtMax":  1.0,
+                                                    "dustParticlesAtZero":  0,
+                                                    "dustParticlesAtMax":  60,
+                                                    "furnitureShadowsSharpness":  0.8
+                                                },
+                                "postProcessing":  {
+                                                       "vignetteIntensityAtZero":  0.15,
+                                                       "vignetteIntensityAtMax":  0.65,
+                                                       "saturationAtZero":  1.0,
+                                                       "saturationAtMax":  0.2,
+                                                       "contrastAtMax":  1.5,
+                                                       "chromaticAberrationAbove":  0.75
+                                                   }
+                            },
+    "therapistAddableAssets":  [
+                                   {
+                                       "id":  "spider_small",
+                                       "label":  "Small House Spider",
+                                       "tags":  [
+                                                    "spider",
+                                                    "small",
+                                                    "house",
+                                                    "arachnid"
+                                                ],
+                                       "category":  "creature",
+                                       "maxCount":  20
+                                   },
+                                   {
+                                       "id":  "spider_large",
+                                       "label":  "Large Spider",
+                                       "tags":  [
+                                                    "spider",
+                                                    "large",
+                                                    "tarantula",
+                                                    "arachnid"
+                                                ],
+                                       "category":  "creature",
+                                       "maxCount":  6
+                                   },
+                                   {
+                                       "id":  "cobweb_corner",
+                                       "label":  "Corner Cobweb",
+                                       "tags":  [
+                                                    "cobweb",
+                                                    "web",
+                                                    "corner",
+                                                    "spider"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  8
+                                   },
+                                   {
+                                       "id":  "cobweb_ceiling",
+                                       "label":  "Ceiling Cobweb",
+                                       "tags":  [
+                                                    "cobweb",
+                                                    "web",
+                                                    "ceiling",
+                                                    "spider"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  6
+                                   },
+                                   {
+                                       "id":  "egg_sac",
+                                       "label":  "Spider Egg Sac",
+                                       "tags":  [
+                                                    "egg",
+                                                    "sac",
+                                                    "spider",
+                                                    "nest"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  4
+                                   }
+                               ],
+    "therapistModifiableParameters":  [
+                                          {
+                                              "id":  "timeOfDay",
+                                              "label":  "Time of Day",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "morning",
+                                                              "afternoon",
+                                                              "evening",
+                                                              "night"
+                                                          ],
+                                              "default":  "afternoon"
+                                          },
+                                          {
+                                              "id":  "windowState",
+                                              "label":  "Window",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "open",
+                                                              "closed",
+                                                              "curtains_drawn"
+                                                          ],
+                                              "default":  "open"
+                                          },
+                                          {
+                                              "id":  "roomClutter",
+                                              "label":  "Room Clutter",
+                                              "type":  "float",
+                                              "min":  0.0,
+                                              "max":  1.0,
+                                              "default":  0.3,
+                                              "description":  "More clutter means more hiding spots for spiders"
+                                          },
+                                          {
+                                              "id":  "soundscape",
+                                              "label":  "Background Sound",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "tv_on",
+                                                              "quiet",
+                                                              "silent"
+                                                          ],
+                                              "default":  "quiet"
+                                          }
+                                      ],
+    "safetySettings":  {
+                           "panicButtonEnabled":  true,
+                           "panicButtonAction":  "freeze_all_triggers",
+                           "autoReduceIfHRAbove":  130,
+                           "autoReduceIfGSRAbove":  2.5,
+                           "minimumBreakBetweenPeaks":  30,
+                           "maxSessionDurationSeconds":  3600
+                       },
+    "objects":  [
+                    {
+                        "id":  "vr_player_camera_offset_right_hand",
+                        "name":  "\u0027Right Hand \u0027",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/\u0027Right Hand \u0027",
+                        "transformFileId":  422824587,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_left_hand",
+                        "name":  "Left Hand",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Left Hand",
+                        "transformFileId":  591448229,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_main_camera",
+                        "name":  "Main Camera",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Main Camera",
+                        "transformFileId":  912057827,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_right_hand",
+                        "name":  "\u0027Right Hand \u0027",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/\u0027Right Hand \u0027",
+                        "transformFileId":  1121830056,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_main_camera",
+                        "name":  "Main Camera",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Main Camera",
+                        "transformFileId":  1166005441,
+                        "position":  {
+                                         "x":  -900,
+                                         "y":  1,
+                                         "z":  -990
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset",
+                        "name":  "Camera Offset",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset",
+                        "transformFileId":  1195574336,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  1.1176,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "xr_interaction_manager",
+                        "name":  "XR Interaction Manager",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "XR Interaction Manager",
+                        "transformFileId":  1481685559,
+                        "position":  {
+                                         "x":  -2.9339662,
+                                         "y":  2.550713,
+                                         "z":  1.1484716
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset",
+                        "name":  "Camera Offset",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset",
+                        "transformFileId":  1595724645,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  1.1176,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player",
+                        "name":  "VR Player",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player",
+                        "transformFileId":  1841645506,
+                        "position":  {
+                                         "x":  18252,
+                                         "y":  1,
+                                         "z":  77470
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_left_hand",
+                        "name":  "Left Hand",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Left Hand",
+                        "transformFileId":  1902361807,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "directional_light",
+                        "name":  "Directional Light",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "Directional Light",
+                        "transformFileId":  1998865685,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  3,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player",
+                        "name":  "VR Player",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player",
+                        "transformFileId":  2131962192,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    }
+                ]
 }

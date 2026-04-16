@@ -71,16 +71,20 @@ public class AIPlacementOrchestrator : MonoBehaviour {
         string baseEnvironmentJson = LoadBaseEnvironmentJson(environmentId);
         string baseEnvironmentDetails = BuildEnvironmentObjectDetails(baseEnvironmentJson);
         string baseEnvironmentObjectIds = BuildEnvironmentObjectIdList(baseEnvironmentJson);
+        string localPreloadedAssetJson = LoadLocalPreloadedAssetJson();
 
         string prompt = BuildPlacementPrompt(
             placementText,
             baseEnvironmentJson,
             baseEnvironmentDetails,
             baseEnvironmentObjectIds,
+            localPreloadedAssetJson,
             activeSceneLayout,
             inventory,
             intensity,
             objects);
+
+        Debug.Log($"[AIPlacement] Prompt size (chars) = {prompt.Length}");
 
         string responseJson;
         try {
@@ -177,16 +181,19 @@ public class AIPlacementOrchestrator : MonoBehaviour {
             .Trim();
     }
 
-    string BuildSystemPrompt() {
-        return @"
+        string BuildSystemPrompt() {
+                return @"
 You are a 3D scene layout expert for VR exposure therapy.
 Your job is to return object placements for a Unity scene based on therapist text and room context.
 
 Rules:
 - Read the selected base-environment JSON carefully.
 - Read BASE ENVIRONMENT OBJECT DETAILS and BASE ENVIRONMENT OBJECT IDS.
+- Read LOCAL PRELOADED ASSET DESCRIPTORS before deciding downloads.
 - Extract concrete object mentions from therapist text.
 - Exclude objects that are already part of the base environment object IDs/details.
+- Exclude objects already available locally in LOCAL PRELOADED ASSET DESCRIPTORS from download candidates.
+- Use local assets first. Objaverse is fallback only for objects not available locally.
 - Return only NEW add-on objects that should be spawned on top of the base environment.
 - If REQUESTED OBJECTS TO PLACE is empty, infer object types from therapist description.
 - If REQUESTED OBJECTS TO PLACE is not empty, still add inferred objects from description when they are explicit and not in base environment.
@@ -198,31 +205,39 @@ Rules:
 - Return ONLY valid JSON.
 - Do not include explanations outside JSON.
 - Prefer placements that align with existing scene objects, spawn points, and scene layout.
+- Include an optional downloadCandidates list for inferred objects that are not local and not in base scene.
 - Return position, rotation, scale, anchoredTo, surface, and reasoning for each object.
 
 Output format:
 {
-  ""placements"": [
-    {
+    ""downloadCandidates"": [
+        {
+            ""type"": ""hanging_web_cluster"",
+            ""reason"": ""Mentioned in therapist text and not available locally or in base scene""
+        }
+    ],
+    ""placements"": [
+        {
             ""type"": ""spider_small"",
-      ""position"": {""x"": -3.8, ""y"": 1.5, ""z"": 2.0},
-      ""rotation"": {""x"": 0, ""y"": 90, ""z"": 0},
-      ""scale"": {""x"": 1, ""y"": 1, ""z"": 1},
-      ""anchoredTo"": ""left_wall"",
-      ""surface"": ""wall"",
-      ""reasoning"": ""Wall surface to the left, visible from player""
-    }
-  ]
+            ""position"": {""x"": -3.8, ""y"": 1.5, ""z"": 2.0},
+            ""rotation"": {""x"": 0, ""y"": 90, ""z"": 0},
+            ""scale"": {""x"": 1, ""y"": 1, ""z"": 1},
+            ""anchoredTo"": ""left_wall"",
+            ""surface"": ""wall"",
+            ""reasoning"": ""Wall surface to the left, visible from player""
+        }
+    ]
 }";
-    }
+        }
 
-    string BuildPlacementPrompt(string therapistDescription, string baseEnvironmentJson, string baseEnvironmentDetails, string baseEnvironmentObjectIds, SceneLayoutContext sceneLayout, SceneInventory inventory, float intensity, SceneObjectData[] objectsToPlace) {
-        string environmentJson = string.IsNullOrWhiteSpace(baseEnvironmentJson) ? "{}" : baseEnvironmentJson;
-        string environmentDetails = string.IsNullOrWhiteSpace(baseEnvironmentDetails) ? "No explicit environment object details were found." : baseEnvironmentDetails;
-        string environmentObjectIds = string.IsNullOrWhiteSpace(baseEnvironmentObjectIds) ? "[]" : baseEnvironmentObjectIds;
-        string sceneLayoutJson = sceneLayout != null ? JsonConvert.SerializeObject(sceneLayout, Formatting.Indented) : "null";
-        string inventoryJson = inventory != null ? JsonConvert.SerializeObject(inventory, Formatting.Indented) : "null";
-        string requestedObjectsJson = objectsToPlace != null ? JsonConvert.SerializeObject(objectsToPlace, Formatting.Indented) : "null";
+    string BuildPlacementPrompt(string therapistDescription, string baseEnvironmentJson, string baseEnvironmentDetails, string baseEnvironmentObjectIds, string localPreloadedAssetJson, SceneLayoutContext sceneLayout, SceneInventory inventory, float intensity, SceneObjectData[] objectsToPlace) {
+        string environmentJson = BuildCompactEnvironmentContext(baseEnvironmentJson);
+        string environmentDetails = TruncateForPrompt(string.IsNullOrWhiteSpace(baseEnvironmentDetails) ? "No explicit environment object details were found." : baseEnvironmentDetails, 900);
+        string environmentObjectIds = BuildCompactEnvironmentObjectIds(baseEnvironmentObjectIds);
+        string localAssetsJson = BuildCompactLocalAssetCatalog(localPreloadedAssetJson);
+        string sceneLayoutJson = sceneLayout != null ? JsonConvert.SerializeObject(sceneLayout, Formatting.None) : "null";
+        string inventoryJson = BuildCompactSceneInventoryJson(inventory);
+        string requestedObjectsJson = objectsToPlace != null ? JsonConvert.SerializeObject(objectsToPlace, Formatting.None) : "null";
 
         return $@"
 THERAPIST DESCRIPTION:
@@ -240,12 +255,18 @@ BASE ENVIRONMENT OBJECT DETAILS:
 BASE ENVIRONMENT OBJECT IDS:
 {environmentObjectIds}
 
+LOCAL PRELOADED ASSET DESCRIPTORS:
+{localAssetsJson}
+
 PLACEMENT CONSTRAINTS:
 - Use the environment's local coordinate space.
 - Keep each object inside the selected room.
 - For a wall request, place the object slightly inside the wall surface.
 - Return scale values that are visible at the room's current scale.
 - Do not place objects already listed in BASE ENVIRONMENT OBJECT IDS.
+- Prefer matching LOCAL PRELOADED ASSET DESCRIPTORS for inferred objects.
+- Only include items in downloadCandidates when there is no local match and object is not in base environment.
+- Objaverse is fallback only for downloadCandidates.
 
 SCENE LAYOUT CONTEXT:
 {sceneLayoutJson}
@@ -262,6 +283,141 @@ When REQUESTED OBJECTS TO PLACE is empty, output all inferred NEW objects.
 When REQUESTED OBJECTS TO PLACE is non-empty, merge requested and inferred NEW objects, then de-duplicate by semantic type.
 
 Return placements for all NEW objects that should be added to the scene based on therapist description, base environment, and room geometry.";
+    }
+
+    static string BuildCompactEnvironmentContext(string baseEnvironmentJson) {
+        if (string.IsNullOrWhiteSpace(baseEnvironmentJson))
+            return "{}";
+
+        try {
+            var src = JObject.Parse(baseEnvironmentJson);
+            var compact = new JObject {
+                ["environmentId"] = src["environmentId"],
+                ["displayName"] = src["displayName"],
+                ["description"] = src["description"],
+                ["sceneLayout"] = src["sceneLayout"]
+            };
+
+            if (src["spawnPoints"] is JArray spawnPoints) {
+                var compactSpawn = new JArray();
+                int limit = Mathf.Min(10, spawnPoints.Count);
+                for (int i = 0; i < limit; i++) {
+                    if (spawnPoints[i] is JObject sp) {
+                        compactSpawn.Add(new JObject {
+                            ["id"] = sp["id"],
+                            ["type"] = sp["type"],
+                            ["position"] = sp["position"]
+                        });
+                    }
+                }
+
+                compact["spawnPoints"] = compactSpawn;
+            }
+
+            if (src["objects"] is JArray objects) {
+                var compactObjects = new JArray();
+                int limit = Mathf.Min(20, objects.Count);
+                for (int i = 0; i < limit; i++) {
+                    if (objects[i] is JObject obj) {
+                        compactObjects.Add(new JObject {
+                            ["id"] = obj["id"],
+                            ["name"] = obj["name"],
+                            ["type"] = obj["type"],
+                            ["role"] = obj["role"],
+                            ["position"] = obj["position"],
+                            ["scale"] = obj["scale"]
+                        });
+                    }
+                }
+
+                compact["objects"] = compactObjects;
+                compact["objectsTotal"] = objects.Count;
+            }
+
+            return compact.ToString(Formatting.None);
+        } catch {
+            return TruncateForPrompt(baseEnvironmentJson, 3000);
+        }
+    }
+
+    static string BuildCompactEnvironmentObjectIds(string baseEnvironmentObjectIds) {
+        if (string.IsNullOrWhiteSpace(baseEnvironmentObjectIds))
+            return "[]";
+
+        try {
+            var ids = JArray.Parse(baseEnvironmentObjectIds);
+            var compact = new JArray();
+            int limit = Mathf.Min(60, ids.Count);
+            for (int i = 0; i < limit; i++)
+                compact.Add(ids[i]);
+
+            return compact.ToString(Formatting.None);
+        } catch {
+            return TruncateForPrompt(baseEnvironmentObjectIds, 1200);
+        }
+    }
+
+    static string BuildCompactLocalAssetCatalog(string localPreloadedAssetJson) {
+        if (string.IsNullOrWhiteSpace(localPreloadedAssetJson))
+            return "[]";
+
+        try {
+            var src = JArray.Parse(localPreloadedAssetJson);
+            var compact = new JArray();
+            int limit = Mathf.Min(30, src.Count);
+
+            for (int i = 0; i < limit; i++) {
+                if (src[i] is not JObject obj)
+                    continue;
+
+                compact.Add(new JObject {
+                    ["id"] = obj["id"],
+                    ["category"] = obj["category"],
+                    ["tags"] = obj["tags"]
+                });
+            }
+
+            return compact.ToString(Formatting.None);
+        } catch {
+            return TruncateForPrompt(localPreloadedAssetJson, 2200);
+        }
+    }
+
+    static string BuildCompactSceneInventoryJson(SceneInventory inventory) {
+        if (inventory == null)
+            return "null";
+
+        var compact = new JObject {
+            ["roomBounds"] = inventory.roomBounds != null ? JObject.FromObject(inventory.roomBounds) : null
+        };
+
+        var existing = new JArray();
+        if (inventory.existingObjects != null) {
+            int limit = Mathf.Min(10, inventory.existingObjects.Count);
+            for (int i = 0; i < limit; i++) {
+                var item = inventory.existingObjects[i];
+                if (item == null)
+                    continue;
+
+                existing.Add(new JObject {
+                    ["name"] = item.name,
+                    ["position"] = item.position != null ? JObject.FromObject(item.position) : null,
+                    ["bounds"] = item.bounds != null ? JObject.FromObject(item.bounds) : null
+                });
+            }
+
+            compact["existingObjectsTotal"] = inventory.existingObjects.Count;
+        }
+
+        compact["existingObjects"] = existing;
+        return compact.ToString(Formatting.None);
+    }
+
+    static string TruncateForPrompt(string value, int maxChars) {
+        if (string.IsNullOrEmpty(value) || value.Length <= maxChars)
+            return value ?? string.Empty;
+
+        return value.Substring(0, maxChars) + "\n... [truncated for prompt size]";
     }
 
     AIPlacementResult[] ParsePlacements(string json) {
@@ -363,14 +519,18 @@ Return placements for all NEW objects that should be added to the scene based on
         if (resolver == null)
             return null;
 
+        string semanticId = NormalizeType(placementType);
+        if (string.IsNullOrWhiteSpace(semanticId))
+            semanticId = string.IsNullOrWhiteSpace(resolvedId) ? "unknown_object" : resolvedId;
+
         var requestAsset = new SceneAsset {
-            id = string.IsNullOrWhiteSpace(resolvedId) ? NormalizeType(placementType) : resolvedId,
+            id = semanticId,
             category = placementType,
             tags = new[] { placementType },
             preferredStyle = string.Empty
         };
 
-        Debug.Log($"[AIPlacement] Trying Objaverse for type='{placementType}' id='{requestAsset.id}'");
+        Debug.Log($"[AIPlacement] Trying Objaverse for type='{placementType}' id='{requestAsset.id}' (resolvedId='{resolvedId}')");
 
         return await resolver.TryResolve(requestAsset);
     }
@@ -666,6 +826,33 @@ Return placements for all NEW objects that should be added to the scene based on
         }
 
         return null;
+    }
+
+    static string LoadLocalPreloadedAssetJson() {
+        string preloadedRoot = Path.Combine(Application.dataPath, "PreloadedAssets");
+        if (!Directory.Exists(preloadedRoot))
+            return "[]";
+
+        try {
+            var files = Directory.GetFiles(preloadedRoot, "*.json", SearchOption.TopDirectoryOnly);
+            var entries = new JArray();
+
+            for (int i = 0; i < files.Length; i++) {
+                string json = File.ReadAllText(files[i]);
+                if (string.IsNullOrWhiteSpace(json))
+                    continue;
+
+                try {
+                    entries.Add(JObject.Parse(json));
+                } catch {
+                    // Ignore malformed local descriptor files.
+                }
+            }
+
+            return entries.ToString(Formatting.Indented);
+        } catch {
+            return "[]";
+        }
     }
 
     static SceneLayoutContext BuildSceneLayoutContext(JObject doc) {

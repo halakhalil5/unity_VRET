@@ -1,0 +1,34 @@
+﻿{
+    "id":  "round_table",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_roundTable.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_roundTable",
+    "category":  "furniture",
+    "tags":  [
+                 "table",
+                 "furniture",
+                 "round",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  1.5,
+                   "y":  0.7,
+                   "z":  1.5
+               },
+    "description":  "Local preloaded furniture asset \u0027dprop_roundTable\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_roundTable (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_roundTable.prefab). Use this when therapist description requests matching terms: table, furniture, round, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "table",
+                                      "furniture",
+                                      "round",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

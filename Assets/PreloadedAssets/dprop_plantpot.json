@@ -1,0 +1,34 @@
+﻿{
+    "id":  "plant_pot",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_plantPot.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_plantPot",
+    "category":  "decoration",
+    "tags":  [
+                 "plant",
+                 "pot",
+                 "decoration",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  0.4,
+                   "y":  0.4,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded decoration asset \u0027dprop_plantpot\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_plantPot (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_plantPot.prefab). Use this when therapist description requests matching terms: plant, pot, decoration, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "plant",
+                                      "pot",
+                                      "decoration",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

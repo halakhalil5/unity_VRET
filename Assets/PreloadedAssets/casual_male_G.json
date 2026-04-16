@@ -1,0 +1,36 @@
+﻿{
+    "id":  "casual_male_g",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/city/casual_Male_G.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/casual_Male_G",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "male",
+                 "casual",
+                 "character",
+                 "npc"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  1.8,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded character asset \u0027casual_male_G\u0027 from PreloadedAssets/People/casual_Male_G (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/city/casual_Male_G.prefab). Use this when therapist description requests matching terms: person, male, casual, character, npc. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "male",
+                                      "casual",
+                                      "character",
+                                      "npc"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

@@ -7,7 +7,7 @@ using UnityEditor;
 
 /// <summary>
 /// Spawns scene objects by resolving them through the asset system.
-/// Instantiates prefabs from Resources or creates placeholder cubes.
+/// Instantiates prefabs from Resources and optionally falls back to Objaverse.
 /// All spawned objects are tagged "SpawnedObject" and parented to "SpawnedObjects" container.
 /// </summary>
 public class ObjectSpawner : MonoBehaviour {
@@ -79,7 +79,7 @@ public class ObjectSpawner : MonoBehaviour {
         ClearSpawnedObjects();
 
         int successCount = 0;
-        int placeholderCount = 0;
+        int skippedCount = 0;
 
         foreach (var obj in objects) {
             if (obj == null) continue;
@@ -106,16 +106,11 @@ public class ObjectSpawner : MonoBehaviour {
                 }
             }
 
-            // Fall back to placeholder
-            SpawnPlaceholder(obj, pos);
-            placeholderCount++;
-
-            if (!resolution.found) {
-                Debug.LogWarning($"[Spawner] No asset for '{obj.type}' → using placeholder");
-            }
+            skippedCount++;
+            Debug.LogWarning($"[Spawner] No local asset for '{obj.type}' and placeholder spawning is disabled; skipping.");
         }
 
-        Debug.Log($"[Spawner] Spawned {successCount} objects + {placeholderCount} placeholders");
+        Debug.Log($"[Spawner] Spawned {successCount} local objects; skipped {skippedCount} missing objects");
     }
 
     public async Task<SpawnBatchResult> SpawnObjectsWithObjaverseFallback(SceneObjectData[] objects) {
@@ -156,15 +151,11 @@ public class ObjectSpawner : MonoBehaviour {
                 continue;
             }
 
-            SpawnPlaceholder(obj, pos);
             summary.placeholderCount++;
-
-            if (!resolution.found) {
-                Debug.LogWarning($"[Spawner] No local or Objaverse asset for '{obj.type}' -> using placeholder");
-            }
+            Debug.LogWarning($"[Spawner] No local or Objaverse asset found for '{obj.type}' -> skipping (no placeholder).");
         }
 
-        Debug.Log($"[Spawner] Spawned local={summary.localCount}, objaverse={summary.objaverseCount}, placeholders={summary.placeholderCount}");
+        Debug.Log($"[Spawner] Spawned local={summary.localCount}, objaverse={summary.objaverseCount}, skipped={summary.placeholderCount}");
         return summary;
     }
 

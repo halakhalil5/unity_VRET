@@ -1,0 +1,34 @@
+﻿{
+    "id":  "bicycle",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_bicycle.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_bicycle",
+    "category":  "props",
+    "tags":  [
+                 "bicycle",
+                 "vehicle",
+                 "transport",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  0.8,
+                   "y":  1.1,
+                   "z":  1.8
+               },
+    "description":  "Local preloaded props asset \u0027dprop_bicycle\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_bicycle (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_bicycle.prefab). Use this when therapist description requests matching terms: bicycle, vehicle, transport, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "bicycle",
+                                      "vehicle",
+                                      "transport",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

@@ -1,0 +1,36 @@
+﻿{
+    "id":  "worker_constructor_male",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/worker_Male_constructor_B.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/worker_Male_constructor_B",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "male",
+                 "worker",
+                 "construction",
+                 "character"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  1.8,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded character asset \u0027worker_Male_constructor_B\u0027 from PreloadedAssets/People/worker_Male_constructor_B (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/worker_Male_constructor_B.prefab). Use this when therapist description requests matching terms: person, male, worker, construction, character. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "male",
+                                      "worker",
+                                      "construction",
+                                      "character"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

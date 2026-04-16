@@ -1,0 +1,36 @@
+﻿{
+    "id":  "little_boy_b",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/little_kids/little_boy_B.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/little_boy_B",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "male",
+                 "child",
+                 "kid",
+                 "character"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.35,
+                   "y":  1,
+                   "z":  0.3
+               },
+    "description":  "Local preloaded character asset \u0027little_boy\u0027 from PreloadedAssets/People/little_boy_B (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/little_kids/little_boy_B.prefab). Use this when therapist description requests matching terms: person, male, child, kid, character. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "male",
+                                      "child",
+                                      "kid",
+                                      "character"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

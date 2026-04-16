@@ -35,7 +35,7 @@ Core behavior:
 - POST /build-scene receives JSON (BuildRequest), validates it, resolves environment from EnvironmentRegistry, loads scene/prefab, and spawns objects.
 - Object spawn path:
   1) Try AI placement through MERN endpoint (AIPlacementOrchestrator -> http://localhost:5000/api/ai-placement).
-  2) If AI fails/timeouts, fallback to local ObjectSpawner.
+  2) If AI fails/timeouts, AI-only mode skips spawning (no ObjectSpawner placement fallback).
 - Local object resolution uses StreamingAssets/AssetManifest.json and Resources-loaded prefabs.
 - Exposure intensity (0.0-1.0) is applied through PhobiaController.
 - Picture Room environment can preload/generate 7 images via image API (default http://127.0.0.1:8000/generate).
@@ -67,7 +67,7 @@ Main classes to inspect first:
 At runtime, therapist/backend tooling can send scene specifications to Unity. Unity then:
 1. Validates request payloads.
 2. Loads the requested environment.
-3. Spawns requested objects (AI-assisted if enabled).
+3. Spawns requested objects through AI placement only.
 4. Applies exposure intensity.
 5. Optionally captures a preview and returns response JSON.
 
@@ -111,15 +111,13 @@ This enables gradual, programmable exposure scenarios for VR therapy.
   - Picture Room image flow
 
 ### 4) Object Placement Strategy
-- `AIPlacementOrchestrator` (optional first pass)
+- `AIPlacementOrchestrator` (primary placement path)
   - Captures scene views/inventory (`SceneScanner`)
   - Calls MERN AI endpoint
+  - Injects base environment JSON and local preloaded asset descriptors into prompt context
   - Parses placement results and instantiates resolved prefabs
-- `ObjectSpawner` fallback (guaranteed local path)
-  - Resolves assets with `LocalAssetResolver` + `AssetManifestLoader`
-  - Loads prefabs from `Resources`
-  - Applies placement rules and visibility safeguards
-  - Uses placeholder cubes when assets are missing
+  - Resolves local assets first, then Objaverse as strict fallback
+  - Skips placement when neither local nor Objaverse provides an asset
 
 ### Objaverse Runtime Notes
 
@@ -247,8 +245,10 @@ Each base environment now has a JSON definition with explicit object anchors and
 1. Therapist sends free-text description (`placementText`/`description`/`prompt` aliases are accepted).
 2. Runtime gathers base environment JSON + scene layout + live scene inventory.
 3. LLM extracts object intents from text and returns structured placements.
-4. Returned placements are clamped to room bounds and adjusted for surfaces (wall/floor/ceiling).
-5. Objects are instantiated with overlap handling and visibility safeguards.
+4. LLM excludes objects already present in base environment JSON and local preloaded descriptor JSON.
+5. LLM returns download candidates for objects not found locally.
+6. Returned placements are clamped to room bounds and adjusted for surfaces (wall/floor/ceiling).
+7. Objects are instantiated with overlap handling and visibility safeguards.
 
 ## Asset Resolution Order For Spawned Objects
 
@@ -257,7 +257,7 @@ Local-first resolution is enforced before any external fetch:
 1. Resolve type against `AssetManifest.json` using `LocalAssetResolver`.
 2. Attempt prefab load from Resources path variants, prioritizing `PreloadedAssets/...` keys.
 3. If local prefab cannot be resolved, query Objaverse via `ObjaverseResolver`.
-4. If Objaverse also fails, leave placement uninstantiated (AI path) or spawn placeholder (fallback spawner path).
+4. If Objaverse also fails, leave placement uninstantiated (no placeholder spawn).
 
 ## File Responsibilities
 
@@ -269,14 +269,14 @@ Local-first resolution is enforced before any external fetch:
 - `HttpServerBootstrap.cs`: Creates persistent runtime host objects and ensures service singletons exist.
 - `LocalAssetResolver.cs`: Scores and resolves object types/ids to local manifest assets.
 - `Models/Models.cs`: HTTP request/response DTOs and backward-compatible JSON alias parsing.
-- `ObjectSpawner.cs`: Fallback/local spawning pipeline with Objaverse fallback and placeholder generation.
+- `ObjectSpawner.cs`: Utility local/Objaverse resolver path (placeholder spawning disabled).
 - `PhobiaController.cs`: Applies exposure intensity behavior to active scene/phobia effects.
 - `PictureRoomImageOrchestrator.cs`: Generates/preloads/applies PictureRoom images from image service.
 - `PlacementRules.cs`: Data model for placement constraints.
 - `PlacementRulesResolver.cs`: Applies placement constraints (surface, distance, height).
 - `PreviewCaptureService.cs`: Handles preview capture response path.
 - `RelaxationSceneLoadButton.cs`: Handles therapist-selection apply flow from relaxation scene UI.
-- `SceneBuildController.cs`: Main orchestrator for request validation, environment load, AI-or-fallback placement, and intensity application.
+- `SceneBuildController.cs`: Main orchestrator for request validation, environment load, AI-only placement, and intensity application.
 - `SceneScanner.cs`: Captures scene snapshots and inventory for AI context.
 - `SmartPlacer.cs`: Collision/surface-aware placement utility.
 - `UnityHttpServer.cs`: In-process HTTP server exposing `/status` and `/build-scene`.
@@ -319,7 +319,7 @@ Local-first resolution is enforced before any external fetch:
 - Objaverse service: `http://localhost:5001`
 - Image generation service: `http://127.0.0.1:8000/generate`
 
-If these services are unavailable, the project generally degrades with fallbacks/log warnings instead of crashing.
+If these services are unavailable, the project logs warnings and skips object placement instead of spawning placeholders.
 
 ## Local Run / Smoke Test
 
@@ -354,13 +354,13 @@ curl -X POST http://localhost:8080/build-scene \
 - Main-thread safety: Unity API operations are executed on the main thread via queueing.
 - Backward-compatible JSON aliases are supported in `BuildRequest`/`SceneData`.
 - Environment IDs are normalized for variants like hyphens/underscores.
-- Missing assets are represented with placeholders so scene build can continue.
+- Missing assets are skipped (no placeholder spawning).
 
 ## Suggested Prompting Strategy for Copilot
 
 When asking Copilot for changes, include:
 - Target environment behavior (example: PictureRoom preloading, arachnophobia intensity behavior).
-- Whether AI placement should remain optional with fallback.
+- Whether AI placement should remain required (AI-only placement mode).
 - Whether changes must preserve HTTP request compatibility (`/build-scene` aliases).
 - Which class is the integration point (`SceneBuildController` for orchestration, `ObjectSpawner` for local placement, `AIPlacementOrchestrator` for AI flow).
 
@@ -370,7 +370,7 @@ A good prompt format:
 In this Unity VR project, update [class/file] to [goal].
 Constraints:
 1) Keep /build-scene request compatibility.
-2) Preserve AI placement fallback to ObjectSpawner.
+2) Preserve AI-only placement behavior.
 3) Keep Unity API calls on main thread.
 4) Add logs prefixed with [SceneBuild] or [Spawner].
 ```

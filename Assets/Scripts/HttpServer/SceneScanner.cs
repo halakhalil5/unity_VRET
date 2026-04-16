@@ -179,7 +179,8 @@ public class SceneScanner : MonoBehaviour {
             return false;
 
         try {
-            return go.CompareTag(tag);
+            // Accessing go.tag avoids CompareTag warnings when the tag is missing.
+            return string.Equals(go.tag, tag, System.StringComparison.Ordinal);
         } catch (UnityException) {
             // Missing tags should not break scene scanning.
             return false;

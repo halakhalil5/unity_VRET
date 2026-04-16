@@ -1,0 +1,36 @@
+﻿{
+    "id":  "prosthetic_leg_girl",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/disabilities/prostheticLeg_girl.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/prostheticLeg_girl",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "female",
+                 "child",
+                 "disability",
+                 "character"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.35,
+                   "y":  1.1,
+                   "z":  0.3
+               },
+    "description":  "Local preloaded character asset \u0027prostheticLeg_girl\u0027 from PreloadedAssets/People/prostheticLeg_girl (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/disabilities/prostheticLeg_girl.prefab). Use this when therapist description requests matching terms: person, female, child, disability, character. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "female",
+                                      "child",
+                                      "disability",
+                                      "character"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

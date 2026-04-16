@@ -1,0 +1,36 @@
+﻿{
+    "id":  "police_female_a",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/professions/police_Female_A.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/police_Female_A",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "female",
+                 "police",
+                 "officer",
+                 "character"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  1.7,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded character asset \u0027Police_female\u0027 from PreloadedAssets/People/police_Female_A (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/professions/police_Female_A.prefab). Use this when therapist description requests matching terms: person, female, police, officer, character. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "female",
+                                      "police",
+                                      "officer",
+                                      "character"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

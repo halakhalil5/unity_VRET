@@ -1,302 +1,495 @@
-{
-  "environmentId": "elevator",
-  "displayName": "Elevator",
-  "phobiaType": "claustrophobia",
-  "description": "Confined metal elevator car in a high-rise building with smooth walls, dim fluorescent lighting, and potential crowd elements",
-  "sceneLayout": {
-    "position": { "x": 0.0, "y": 1.1, "z": -0.1 },
-    "dimensions": { "x": 3.0, "y": 2.2, "z": 2.8 },
-    "scale": { "x": 1.0, "y": 1.0, "z": 1.0 }
-  },
-
-  "intensityLevels": {
-    "0.0":  "Open-door elevator with bright lighting, low ambient hum, and clear exit visibility",
-    "0.25": "Doors mostly closed with mild motor audio, slight confinement, and sparse occupants",
-    "0.5":  "Doors sealed with active movement cues, dimmer lighting, and stronger enclosed-space pressure",
-    "0.75": "Crowded cabin with tighter spacing, harsher lighting/audio cues, and sustained confinement stress",
-    "1.0":  "Packed enclosed cabin with alarm/emergency cues, heavy crowd pressure, and peak claustrophobic intensity"
-  },
-
-  "spawnPoints": [
-    { "id": "sp_floor_center",      "position": { "x":  0.0, "y": 0.0, "z":  0.0 }, "type": "ground"  },
-    { "id": "sp_floor_left",        "position": { "x": -1.2, "y": 0.0, "z":  0.0 }, "type": "ground"  },
-    { "id": "sp_floor_right",       "position": { "x":  1.2, "y": 0.0, "z":  0.0 }, "type": "ground"  },
-    { "id": "sp_floor_back",        "position": { "x":  0.0, "y": 0.0, "z": -1.0 }, "type": "ground"  },
-    { "id": "sp_wall_left",         "position": { "x": -1.5, "y": 1.0, "z": -0.5 }, "type": "wall"    },
-    { "id": "sp_wall_right",        "position": { "x":  1.5, "y": 1.0, "z": -0.5 }, "type": "wall"    },
-    { "id": "sp_wall_back",         "position": { "x":  0.0, "y": 1.0, "z": -1.5 }, "type": "wall"    },
-    { "id": "sp_mirror_center",     "position": { "x":  0.0, "y": 1.3, "z":  1.3 }, "type": "wall"    },
-    { "id": "sp_ceiling_left",      "position": { "x": -0.8, "y": 2.2, "z":  0.0 }, "type": "ceiling" },
-    { "id": "sp_ceiling_right",     "position": { "x":  0.8, "y": 2.2, "z":  0.0 }, "type": "ceiling" }
-  ],
-
-  "objects": [
-    {
-      "id": "elevator_floor_center",
-      "name": "Floor Center",
-      "type": "surface",
-      "role": "floor_anchor",
-      "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
-      "scale": { "x": 3.0, "y": 0.1, "z": 2.8 }
-    },
-    {
-      "id": "elevator_wall_left",
-      "name": "Left Wall",
-      "type": "wall",
-      "role": "confinement_boundary",
-      "position": { "x": -1.5, "y": 1.0, "z": -0.5 },
-      "scale": { "x": 0.1, "y": 2.2, "z": 2.8 }
-    },
-    {
-      "id": "elevator_wall_right",
-      "name": "Right Wall",
-      "type": "wall",
-      "role": "confinement_boundary",
-      "position": { "x": 1.5, "y": 1.0, "z": -0.5 },
-      "scale": { "x": 0.1, "y": 2.2, "z": 2.8 }
-    },
-    {
-      "id": "elevator_wall_back",
-      "name": "Back Wall",
-      "type": "wall",
-      "role": "confinement_boundary",
-      "position": { "x": 0.0, "y": 1.0, "z": -1.5 },
-      "scale": { "x": 3.0, "y": 2.2, "z": 0.1 }
-    },
-    {
-      "id": "elevator_mirror_center",
-      "name": "Mirror Center",
-      "type": "mirror",
-      "role": "reflection_anchor",
-      "position": { "x": 0.0, "y": 1.3, "z": 1.3 },
-      "scale": { "x": 1.4, "y": 1.5, "z": 0.05 }
-    },
-    {
-      "id": "elevator_ceiling_center",
-      "name": "Ceiling Center",
-      "type": "surface",
-      "role": "ceiling_anchor",
-      "position": { "x": 0.0, "y": 2.2, "z": 0.0 },
-      "scale": { "x": 3.0, "y": 0.1, "z": 2.8 }
-    },
-    {
-      "id": "elevator_control_panel",
-      "name": "Control Panel",
-      "type": "panel",
-      "role": "interaction_anchor",
-      "position": { "x": -1.0, "y": 1.1, "z": 0.95 },
-      "scale": { "x": 0.3, "y": 0.8, "z": 0.1 }
-    },
-    {
-      "id": "elevator_doorway",
-      "name": "Doorway",
-      "type": "door",
-      "role": "exit_anchor",
-      "position": { "x": 0.0, "y": 1.1, "z": 1.35 },
-      "scale": { "x": 2.2, "y": 2.2, "z": 0.1 }
-    }
-  ],
-
-  "intensityParameters": {
-
-    "crowding": {
-      "peopleCountAtZero":        0,
-      "peopleCountAtMax":         8,
-      "personDistanceAtZero":     5.0,
-      "personDistanceAtMax":      0.5,
-      "shoulderPresenceAbove":    0.35,
-      "breathingAudienceAbove":   0.45,
-      "personMovementAbove":      0.6,
-      "personHeightVariance":     0.15
-    },
-
-    "confinement": {
-      "wallProximityAtZero":      2.5,
-      "wallProximityAtMax":       0.8,
-      "ceilingVisibilityAtZero":  0.3,
-      "ceilingVisibilityAtMax":   0.9,
-      "floorReflectionAtZero":    0.0,
-      "floorReflectionAtMax":     0.8,
-      "mirrorDistortionAbove":    0.5,
-      "metalEchoAtMax":           0.8
-    },
-
-    "lighting": {
-      "ambientIntensityAtZero":   0.85,
-      "ambientIntensityAtMax":    0.35,
-      "fluorescentFlickerAbove":  0.4,
-      "fluorescentFlickerSpeed":  1.2,
-      "shadowIntensityAtMax":     0.9,
-      "emergencyLightAbove":      0.75,
-      "emergencyLightColor":      "#FF3333",
-      "darkCornerShadowsAbove":   0.65
-    },
-
-    "audio": {
-      "armbienceHumAtZero":       0.2,
-      "ambientHumAtMax":          0.9,
-      "elevatorMotorAbove":       0.3,
-      "elevatorMotorVolumeAtMax": 0.7,
-      "doorAlarmAbove":           0.65,
-      "doorAlarmVolumeAtMax":     0.8,
-      "respirationAudienceAbove": 0.5,
-      "respirationVolumeAtMax":   0.6,
-      "heartbeatAudioAbove":      0.55,
-      "heartbeatVolumeAtMax":     0.7,
-      "staticNoiseAbove":         0.7,
-      "staticVolumeAtMax":        0.5
-    },
-
-    "environment": {
-      "dustParticlesAtZero":      2,
-      "dustParticlesAtMax":       25,
-      "fogDensityAtZero":         0.0,
-      "fogDensityAtMax":          0.04,
-      "airConditioningStreamAbove": 0.35,
-      "temperatureAnimationAbove": 0.5,
-      "fluoriescentGlowAtMax":    0.85,
-      "metalReflectivityAtMax":   0.7
-    },
-
-    "postProcessing": {
-      "vignetteIntensityAtZero":  0.15,
-      "vignetteIntensityAtMax":   0.85,
-      "saturationAtZero":         1.0,
-      "saturationAtMax":          0.55,
-      "contrastAtMax":            1.5,
-      "chromaticAberrationAbove": 0.5,
-      "screenShakeAbove":         0.65,
-      "screenShakeStrengthAtMax": 0.3,
-      "perspectiveDistortAbove":  0.7,
-      "perspectiveDistortMaxAtMax": 1.15
-    }
-
-  },
-
-  "therapistAddableAssets": [
-    {
-      "id":       "person_adult_male",
-      "label":    "Adult Male Passenger",
-      "tags":     ["person", "adult", "male", "crowd"],
-      "category": "character",
-      "maxCount": 6
-    },
-    {
-      "id":       "person_adult_female",
-      "label":    "Adult Female Passenger",
-      "tags":     ["person", "adult", "female", "crowd"],
-      "category": "character",
-      "maxCount": 6
-    },
-    {
-      "id":       "person_child",
-      "label":    "Child Passenger",
-      "tags":     ["person", "child", "crowd"],
-      "category": "character",
-      "maxCount": 3
-    },
-    {
-      "id":       "briefcase_floor",
-      "label":    "Briefcase on Floor",
-      "tags":     ["object", "briefcase", "clutter"],
-      "category": "prop",
-      "maxCount": 3
-    },
-    {
-      "id":       "shopping_bag",
-      "label":    "Shopping Bag",
-      "tags":     ["object", "bag", "clutter"],
-      "category": "prop",
-      "maxCount": 4
-    },
-    {
-      "id":       "stuck_sign",
-      "label":    "Stuck Between Floors Sign",
-      "tags":     ["warning", "text", "sign"],
-      "category": "prop",
-      "maxCount": 1
-    },
-    {
-      "id":       "emergency_button_lit",
-      "label":    "Glowing Emergency Button",
-      "tags":     ["emergency", "button", "interactive"],
-      "category": "prop",
-      "maxCount": 1
-    }
-  ],
-
-  "therapistModifiableParameters": [
-    {
-      "id":      "floorNumber",
-      "label":   "Current Floor",
-      "type":    "int",
-      "min":     1,
-      "max":     50,
-      "default": 10
-    },
-    {
-      "id":      "elevatorSpeed",
-      "label":   "Elevator Speed",
-      "type":    "enum",
-      "options": ["stationary", "slow_ascent", "fast_ascent", "descent", "stalled"],
-      "default": "stationary"
-    },
-    {
-      "id":      "doorState",
-      "label":   "Door Status",
-      "type":    "enum",
-      "options": ["open", "opening", "closed", "closing", "stuck"],
-      "default": "open"
-    },
-    {
-      "id":      "crowdDensity",
-      "label":   "Crowd Density",
-      "type":    "float",
-      "min":     0.0,
-      "max":     1.0,
-      "default": 0.3,
-      "description": "Controls number of nearby people and proximity"
-    },
-    {
-      "id":      "lighting",
-      "label":   "Lighting Condition",
-      "type":    "enum",
-      "options": ["bright", "normal", "dim", "emergency_red", "flickering"],
-      "default": "normal"
-    },
-    {
-      "id":      "soundTrack",
-      "label":   "Audio Ambiance",
-      "type":    "enum",
-      "options": ["silent", "subtle_hum", "normal_operation", "alarm_triggered", "malfunction"],
-      "default": "subtle_hum"
-    },
-    {
-      "id":      "emergencyActive",
-      "label":   "Emergency Scenario",
-      "type":    "boolean",
-      "default": false,
-      "description": "Triggers alarm lights and emergency audio cues"
-    },
-    {
-      "id":      "breathingSync",
-      "label":   "Ambient Breathing Sync",
-      "type":    "float",
-      "min":     0.0,
-      "max":     1.0,
-      "default": 0.0,
-      "description": "Synchronizes audience breathing patterns with therapeutic intervention"
-    }
-  ],
-
-  "defaultSceneSetup": {
-    "timeOfDay": "midday",
-    "weather": "none",
-    "buildingLocation": "downtown_high_rise",
-    "elevatorStyle": "modern_corporate",
-    "floorRangeMin": 1,
-    "floorRangeMax": 50,
-    "weatherProof": true
-  }
-
+﻿{
+    "environmentId":  "elevator",
+    "displayName":  "Elevator",
+    "phobiaType":  "claustrophobia",
+    "description":  "Confined metal elevator car in a high-rise building with smooth walls, dim fluorescent lighting, and potential crowd elements",
+    "sceneLayout":  {
+                        "position":  {
+                                         "x":  0.0,
+                                         "y":  1.1,
+                                         "z":  -0.1
+                                     },
+                        "dimensions":  {
+                                           "x":  3.0,
+                                           "y":  2.2,
+                                           "z":  2.8
+                                       },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  }
+                    },
+    "intensityLevels":  {
+                            "0.0":  "Open-door elevator with bright lighting, low ambient hum, and clear exit visibility",
+                            "0.25":  "Doors mostly closed with mild motor audio, slight confinement, and sparse occupants",
+                            "0.5":  "Doors sealed with active movement cues, dimmer lighting, and stronger enclosed-space pressure",
+                            "0.75":  "Crowded cabin with tighter spacing, harsher lighting/audio cues, and sustained confinement stress",
+                            "1.0":  "Packed enclosed cabin with alarm/emergency cues, heavy crowd pressure, and peak claustrophobic intensity"
+                        },
+    "spawnPoints":  [
+                        {
+                            "id":  "sp_floor_center",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  0.0,
+                                             "z":  0.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_floor_left",
+                            "position":  {
+                                             "x":  -1.2,
+                                             "y":  0.0,
+                                             "z":  0.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_floor_right",
+                            "position":  {
+                                             "x":  1.2,
+                                             "y":  0.0,
+                                             "z":  0.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_floor_back",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  0.0,
+                                             "z":  -1.0
+                                         },
+                            "type":  "ground"
+                        },
+                        {
+                            "id":  "sp_wall_left",
+                            "position":  {
+                                             "x":  -1.5,
+                                             "y":  1.0,
+                                             "z":  -0.5
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_wall_right",
+                            "position":  {
+                                             "x":  1.5,
+                                             "y":  1.0,
+                                             "z":  -0.5
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_wall_back",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  1.0,
+                                             "z":  -1.5
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_mirror_center",
+                            "position":  {
+                                             "x":  0.0,
+                                             "y":  1.3,
+                                             "z":  1.3
+                                         },
+                            "type":  "wall"
+                        },
+                        {
+                            "id":  "sp_ceiling_left",
+                            "position":  {
+                                             "x":  -0.8,
+                                             "y":  2.2,
+                                             "z":  0.0
+                                         },
+                            "type":  "ceiling"
+                        },
+                        {
+                            "id":  "sp_ceiling_right",
+                            "position":  {
+                                             "x":  0.8,
+                                             "y":  2.2,
+                                             "z":  0.0
+                                         },
+                            "type":  "ceiling"
+                        }
+                    ],
+    "intensityParameters":  {
+                                "crowding":  {
+                                                 "peopleCountAtZero":  0,
+                                                 "peopleCountAtMax":  8,
+                                                 "personDistanceAtZero":  5.0,
+                                                 "personDistanceAtMax":  0.5,
+                                                 "shoulderPresenceAbove":  0.35,
+                                                 "breathingAudienceAbove":  0.45,
+                                                 "personMovementAbove":  0.6,
+                                                 "personHeightVariance":  0.15
+                                             },
+                                "confinement":  {
+                                                    "wallProximityAtZero":  2.5,
+                                                    "wallProximityAtMax":  0.8,
+                                                    "ceilingVisibilityAtZero":  0.3,
+                                                    "ceilingVisibilityAtMax":  0.9,
+                                                    "floorReflectionAtZero":  0.0,
+                                                    "floorReflectionAtMax":  0.8,
+                                                    "mirrorDistortionAbove":  0.5,
+                                                    "metalEchoAtMax":  0.8
+                                                },
+                                "lighting":  {
+                                                 "ambientIntensityAtZero":  0.85,
+                                                 "ambientIntensityAtMax":  0.35,
+                                                 "fluorescentFlickerAbove":  0.4,
+                                                 "fluorescentFlickerSpeed":  1.2,
+                                                 "shadowIntensityAtMax":  0.9,
+                                                 "emergencyLightAbove":  0.75,
+                                                 "emergencyLightColor":  "#FF3333",
+                                                 "darkCornerShadowsAbove":  0.65
+                                             },
+                                "audio":  {
+                                              "armbienceHumAtZero":  0.2,
+                                              "ambientHumAtMax":  0.9,
+                                              "elevatorMotorAbove":  0.3,
+                                              "elevatorMotorVolumeAtMax":  0.7,
+                                              "doorAlarmAbove":  0.65,
+                                              "doorAlarmVolumeAtMax":  0.8,
+                                              "respirationAudienceAbove":  0.5,
+                                              "respirationVolumeAtMax":  0.6,
+                                              "heartbeatAudioAbove":  0.55,
+                                              "heartbeatVolumeAtMax":  0.7,
+                                              "staticNoiseAbove":  0.7,
+                                              "staticVolumeAtMax":  0.5
+                                          },
+                                "environment":  {
+                                                    "dustParticlesAtZero":  2,
+                                                    "dustParticlesAtMax":  25,
+                                                    "fogDensityAtZero":  0.0,
+                                                    "fogDensityAtMax":  0.04,
+                                                    "airConditioningStreamAbove":  0.35,
+                                                    "temperatureAnimationAbove":  0.5,
+                                                    "fluoriescentGlowAtMax":  0.85,
+                                                    "metalReflectivityAtMax":  0.7
+                                                },
+                                "postProcessing":  {
+                                                       "vignetteIntensityAtZero":  0.15,
+                                                       "vignetteIntensityAtMax":  0.85,
+                                                       "saturationAtZero":  1.0,
+                                                       "saturationAtMax":  0.55,
+                                                       "contrastAtMax":  1.5,
+                                                       "chromaticAberrationAbove":  0.5,
+                                                       "screenShakeAbove":  0.65,
+                                                       "screenShakeStrengthAtMax":  0.3,
+                                                       "perspectiveDistortAbove":  0.7,
+                                                       "perspectiveDistortMaxAtMax":  1.15
+                                                   }
+                            },
+    "therapistAddableAssets":  [
+                                   {
+                                       "id":  "person_adult_male",
+                                       "label":  "Adult Male Passenger",
+                                       "tags":  [
+                                                    "person",
+                                                    "adult",
+                                                    "male",
+                                                    "crowd"
+                                                ],
+                                       "category":  "character",
+                                       "maxCount":  6
+                                   },
+                                   {
+                                       "id":  "person_adult_female",
+                                       "label":  "Adult Female Passenger",
+                                       "tags":  [
+                                                    "person",
+                                                    "adult",
+                                                    "female",
+                                                    "crowd"
+                                                ],
+                                       "category":  "character",
+                                       "maxCount":  6
+                                   },
+                                   {
+                                       "id":  "person_child",
+                                       "label":  "Child Passenger",
+                                       "tags":  [
+                                                    "person",
+                                                    "child",
+                                                    "crowd"
+                                                ],
+                                       "category":  "character",
+                                       "maxCount":  3
+                                   },
+                                   {
+                                       "id":  "briefcase_floor",
+                                       "label":  "Briefcase on Floor",
+                                       "tags":  [
+                                                    "object",
+                                                    "briefcase",
+                                                    "clutter"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  3
+                                   },
+                                   {
+                                       "id":  "shopping_bag",
+                                       "label":  "Shopping Bag",
+                                       "tags":  [
+                                                    "object",
+                                                    "bag",
+                                                    "clutter"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  4
+                                   },
+                                   {
+                                       "id":  "stuck_sign",
+                                       "label":  "Stuck Between Floors Sign",
+                                       "tags":  [
+                                                    "warning",
+                                                    "text",
+                                                    "sign"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  1
+                                   },
+                                   {
+                                       "id":  "emergency_button_lit",
+                                       "label":  "Glowing Emergency Button",
+                                       "tags":  [
+                                                    "emergency",
+                                                    "button",
+                                                    "interactive"
+                                                ],
+                                       "category":  "prop",
+                                       "maxCount":  1
+                                   }
+                               ],
+    "therapistModifiableParameters":  [
+                                          {
+                                              "id":  "floorNumber",
+                                              "label":  "Current Floor",
+                                              "type":  "int",
+                                              "min":  1,
+                                              "max":  50,
+                                              "default":  10
+                                          },
+                                          {
+                                              "id":  "elevatorSpeed",
+                                              "label":  "Elevator Speed",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "stationary",
+                                                              "slow_ascent",
+                                                              "fast_ascent",
+                                                              "descent",
+                                                              "stalled"
+                                                          ],
+                                              "default":  "stationary"
+                                          },
+                                          {
+                                              "id":  "doorState",
+                                              "label":  "Door Status",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "open",
+                                                              "opening",
+                                                              "closed",
+                                                              "closing",
+                                                              "stuck"
+                                                          ],
+                                              "default":  "open"
+                                          },
+                                          {
+                                              "id":  "crowdDensity",
+                                              "label":  "Crowd Density",
+                                              "type":  "float",
+                                              "min":  0.0,
+                                              "max":  1.0,
+                                              "default":  0.3,
+                                              "description":  "Controls number of nearby people and proximity"
+                                          },
+                                          {
+                                              "id":  "lighting",
+                                              "label":  "Lighting Condition",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "bright",
+                                                              "normal",
+                                                              "dim",
+                                                              "emergency_red",
+                                                              "flickering"
+                                                          ],
+                                              "default":  "normal"
+                                          },
+                                          {
+                                              "id":  "soundTrack",
+                                              "label":  "Audio Ambiance",
+                                              "type":  "enum",
+                                              "options":  [
+                                                              "silent",
+                                                              "subtle_hum",
+                                                              "normal_operation",
+                                                              "alarm_triggered",
+                                                              "malfunction"
+                                                          ],
+                                              "default":  "subtle_hum"
+                                          },
+                                          {
+                                              "id":  "emergencyActive",
+                                              "label":  "Emergency Scenario",
+                                              "type":  "boolean",
+                                              "default":  false,
+                                              "description":  "Triggers alarm lights and emergency audio cues"
+                                          },
+                                          {
+                                              "id":  "breathingSync",
+                                              "label":  "Ambient Breathing Sync",
+                                              "type":  "float",
+                                              "min":  0.0,
+                                              "max":  1.0,
+                                              "default":  0.0,
+                                              "description":  "Synchronizes audience breathing patterns with therapeutic intervention"
+                                          }
+                                      ],
+    "defaultSceneSetup":  {
+                              "timeOfDay":  "midday",
+                              "weather":  "none",
+                              "buildingLocation":  "downtown_high_rise",
+                              "elevatorStyle":  "modern_corporate",
+                              "floorRangeMin":  1,
+                              "floorRangeMax":  50,
+                              "weatherProof":  true
+                          },
+    "objects":  [
+                    {
+                        "id":  "xr_interaction_manager",
+                        "name":  "XR Interaction Manager",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "XR Interaction Manager",
+                        "transformFileId":  396235496,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  2.550713,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player",
+                        "name":  "VR Player",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player",
+                        "transformFileId":  504478608,
+                        "position":  {
+                                         "x":  -53.64,
+                                         "y":  2.550713,
+                                         "z":  -38.24
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset",
+                        "name":  "Camera Offset",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset",
+                        "transformFileId":  1027079364,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  1.1176,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "directional_light",
+                        "name":  "Directional Light",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "Directional Light",
+                        "transformFileId":  1331059817,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  3,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_left_hand",
+                        "name":  "Left Hand",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Left Hand",
+                        "transformFileId":  1670867078,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_main_camera",
+                        "name":  "Main Camera",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/Main Camera",
+                        "transformFileId":  1883863722,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    },
+                    {
+                        "id":  "vr_player_camera_offset_right_hand",
+                        "name":  "\u0027Right Hand \u0027",
+                        "type":  "scene_object",
+                        "role":  "base_scene_existing",
+                        "scenePath":  "VR Player/Camera Offset/\u0027Right Hand \u0027",
+                        "transformFileId":  1951779167,
+                        "position":  {
+                                         "x":  0,
+                                         "y":  0,
+                                         "z":  0
+                                     },
+                        "scale":  {
+                                      "x":  1,
+                                      "y":  1,
+                                      "z":  1
+                                  }
+                    }
+                ]
 }

@@ -1,0 +1,36 @@
+﻿{
+    "id":  "trash_bin",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_trashBin.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_trashBin",
+    "category":  "props",
+    "tags":  [
+                 "trash",
+                 "bin",
+                 "garbage",
+                 "outdoor",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  0.7,
+                   "z":  0.5
+               },
+    "description":  "Local preloaded props asset \u0027dprop_trashbin\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_trashBin (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_trashBin.prefab). Use this when therapist description requests matching terms: trash, bin, garbage, outdoor, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "trash",
+                                      "bin",
+                                      "garbage",
+                                      "outdoor",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

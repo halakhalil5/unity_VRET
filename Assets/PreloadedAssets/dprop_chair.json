@@ -1,0 +1,34 @@
+﻿{
+    "id":  "chair",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_chair.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_chair",
+    "category":  "furniture",
+    "tags":  [
+                 "chair",
+                 "furniture",
+                 "seating",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  0.8,
+                   "z":  0.5
+               },
+    "description":  "Local preloaded furniture asset \u0027dprop_chair\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_chair (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_chair.prefab). Use this when therapist description requests matching terms: chair, furniture, seating, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "chair",
+                                      "furniture",
+                                      "seating",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

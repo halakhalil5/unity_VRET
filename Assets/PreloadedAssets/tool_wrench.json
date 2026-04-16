@@ -1,0 +1,34 @@
+﻿{
+    "id":  "wrench",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_wrench.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/tools/tool_wrench",
+    "category":  "tools",
+    "tags":  [
+                 "wrench",
+                 "tool",
+                 "equipment",
+                 "hand tool"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.1,
+                   "y":  0.3,
+                   "z":  0.25
+               },
+    "description":  "Local preloaded tools asset \u0027tool_wrench\u0027 from PreloadedAssets/Prefabs/tools/tool_wrench (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_wrench.prefab). Use this when therapist description requests matching terms: wrench, tool, equipment, hand tool. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "wrench",
+                                      "tool",
+                                      "equipment",
+                                      "hand tool"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

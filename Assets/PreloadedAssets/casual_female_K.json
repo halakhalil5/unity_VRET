@@ -1,0 +1,36 @@
+﻿{
+    "id":  "casual_female_k",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/downtown/casual_Female_K.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/People/casual_Female_K",
+    "category":  "character",
+    "tags":  [
+                 "person",
+                 "female",
+                 "casual",
+                 "character",
+                 "npc"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  1.7,
+                   "z":  0.4
+               },
+    "description":  "Local preloaded character asset \u0027casual_female_K\u0027 from PreloadedAssets/People/casual_Female_K (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/downtown/casual_Female_K.prefab). Use this when therapist description requests matching terms: person, female, casual, character, npc. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "person",
+                                      "female",
+                                      "casual",
+                                      "character",
+                                      "npc"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

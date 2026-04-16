@@ -1,0 +1,34 @@
+﻿{
+    "id":  "pipe_wrench",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_pipewrench.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/tools/tool_pipewrench",
+    "category":  "tools",
+    "tags":  [
+                 "wrench",
+                 "tool",
+                 "equipment",
+                 "pipe"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.08,
+                   "y":  0.35,
+                   "z":  0.3
+               },
+    "description":  "Local preloaded tools asset \u0027tool_pipewrench\u0027 from PreloadedAssets/Prefabs/tools/tool_pipewrench (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_pipewrench.prefab). Use this when therapist description requests matching terms: wrench, tool, equipment, pipe. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "wrench",
+                                      "tool",
+                                      "equipment",
+                                      "pipe"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

@@ -1,0 +1,34 @@
+﻿{
+    "id":  "street_sign",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_streetSign.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/PROPS/dummy props/dprop_streetSign",
+    "category":  "props",
+    "tags":  [
+                 "sign",
+                 "street",
+                 "outdoor",
+                 "prop"
+             ],
+    "style":  "stylized",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  2.5,
+                   "z":  0.1
+               },
+    "description":  "Local preloaded props asset \u0027dprop_streetSign\u0027 from PreloadedAssets/Prefabs/PROPS/dummy props/dprop_streetSign (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/PROPS/dummy props/dprop_streetSign.prefab). Use this when therapist description requests matching terms: sign, street, outdoor, prop. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "sign",
+                                      "street",
+                                      "outdoor",
+                                      "prop"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

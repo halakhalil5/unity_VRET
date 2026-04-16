@@ -341,41 +341,28 @@ public class SceneBuildController : MonoBehaviour {
                 if (completed == aiTask) {
                     aiPlaced = aiTask.Result;
                 } else {
-                    Debug.LogWarning("[SceneBuild] AI placement timed out after 15s, using fallback spawner");
+                    Debug.LogWarning("[SceneBuild] AI placement timed out after 15s. AI-only mode will skip object spawning.");
                     aiPlaced = false;
                 }
             } catch (Exception e) {
-                Debug.LogWarning($"[SceneBuild] AI placement threw exception, using fallback: {e.Message}");
+                Debug.LogWarning($"[SceneBuild] AI placement threw exception. AI-only mode will skip object spawning: {e.Message}");
                 aiPlaced = false;
             }
 
             if (aiPlaced && CountSpawnedChildren() == 0) {
-                Debug.LogWarning("[SceneBuild] AI placement reported success but hierarchy is empty, forcing fallback");
+                Debug.LogWarning("[SceneBuild] AI placement reported success but hierarchy is empty. AI-only mode will not run fallback spawner.");
                 aiPlaced = false;
             }
         }
 
         if (!aiPlaced) {
-            if (aiAttempted) {
-                Debug.Log("[SceneBuild] Executing fallback ObjectSpawner placement");
+            if (!aiAttempted) {
+                Debug.LogWarning("[SceneBuild] AI placement is disabled or unavailable; AI-only mode skips object spawning.");
+                return;
             }
 
-            SceneObjectData[] fallbackObjects = objectsToSpawn;
-            if ((fallbackObjects == null || fallbackObjects.Length == 0) && hasPlacementDescription) {
-                string placementText = request?.scene?.placementText ?? request?.placementText;
-                fallbackObjects = InferObjectsFromPlacementDescription(placementText);
-                Debug.Log($"[SceneBuild] Inferred {fallbackObjects.Length} fallback objects from placement description");
-            }
-
-            if (fallbackObjects != null && fallbackObjects.Length > 0) {
-                var spawnSummary = await spawner.SpawnObjectsWithObjaverseFallback(fallbackObjects);
-                Debug.Log($"[SceneBuild] Fallback placement summary local={spawnSummary.localCount}, objaverse={spawnSummary.objaverseCount}, placeholders={spawnSummary.placeholderCount}");
-                foreach (var obj in fallbackObjects) {
-                    Debug.Log($"[Spawner] Placed {obj.type} at ({obj.position?.x}, {obj.position?.y}, {obj.position?.z})");
-                }
-            } else {
-                Debug.LogWarning("[SceneBuild] AI placement failed and description-based fallback could not infer spawnable objects");
-            }
+            Debug.LogWarning("[SceneBuild] AI placement did not produce spawnable objects; AI-only mode skips fallback spawning.");
+            return;
         } else {
             Debug.Log($"[SceneBuild] AI placement succeeded with {CountSpawnedChildren()} hierarchy objects");
         }

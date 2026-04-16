@@ -1,0 +1,34 @@
+﻿{
+    "id":  "hammer",
+    "actualObjectPath":  "Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_hammer.prefab",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Prefabs/tools/tool_hammer",
+    "category":  "tools",
+    "tags":  [
+                 "hammer",
+                 "tool",
+                 "equipment",
+                 "hand tool"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.05,
+                   "y":  0.35,
+                   "z":  0.15
+               },
+    "description":  "Local preloaded tools asset \u0027tool_hammer\u0027 from PreloadedAssets/Prefabs/tools/tool_hammer (asset path: Assets/DenysAlmaral/CityPeople/Prefabs/tools/tool_hammer.prefab). Use this when therapist description requests matching terms: hammer, tool, equipment, hand tool. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "hammer",
+                                      "tool",
+                                      "equipment",
+                                      "hand tool"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}
