@@ -5,20 +5,36 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Newtonsoft.Json;
 
 public class SceneBuildController : MonoBehaviour {
 
     public static SceneBuildController Instance { get; private set; }
 
     [SerializeField] EnvironmentRegistry registry;
+    [Header("Intensity Runtime")]
+    [SerializeField] float arachnophobiaPictureRoomMaxIntensity = 0.35f;
+    [SerializeField] float aviophobiaAirportMaxIntensity = 0.40f;
+    [SerializeField] bool enableAutomaticEnvironmentProgression = false;
+    [SerializeField] float heartRateResting = 70f;
+    [SerializeField] float heartRateMax = 140f;
+    [SerializeField] float gsrBaseline = 1.0f;
+    [SerializeField] float autoEscalateRate = 0.02f;
+    [SerializeField] float autoDeescalateRate = 0.05f;
 
     BuildRequest pendingTherapistRequest;
     bool pendingTherapistSelectionReady = true;
     int pendingSelectionVersion;
+    EnvironmentRegistry.EnvironmentEntry activeEnvironmentEntry;
+    float currentRuntimeIntensity = 0f;
+    BuildRequest lastRuntimeBuildRequest;
+    bool intensityTransitionInProgress;
 
     public bool HasPendingTherapistSelection => pendingTherapistRequest != null;
     public string PendingEnvironment => pendingTherapistRequest?.scene?.environment;
     public bool IsPendingTherapistSelectionReady => pendingTherapistSelectionReady;
+    public float CurrentRuntimeIntensity => currentRuntimeIntensity;
+    public string ActiveEnvironmentId => activeEnvironmentEntry?.environmentId;
 
     void Awake() {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -30,7 +46,7 @@ public class SceneBuildController : MonoBehaviour {
     }
 
     public BuildResponse BuildScene(BuildRequest request) {
-        if (IsRelaxationSceneActive()) {
+        if (IsTherapistSelectionSceneActive()) {
             pendingTherapistRequest = request;
             pendingSelectionVersion++;
             pendingTherapistSelectionReady = !IsPictureRoomEnvironment(request?.scene?.environment);
@@ -38,7 +54,7 @@ public class SceneBuildController : MonoBehaviour {
             if (!pendingTherapistSelectionReady)
                 _ = PreloadPendingPictureRoomImagesAsync(request, pendingSelectionVersion);
 
-            Debug.Log($"[SceneBuild] Queued therapist selection '{request.scene.environment}' from RelaxationScene");
+            Debug.Log($"[SceneBuild] Queued therapist selection '{request.scene.environment}' from therapist selection scene");
 
             return new BuildResponse {
                 status = "ok",
@@ -80,7 +96,9 @@ public class SceneBuildController : MonoBehaviour {
     }
 
     BuildResponse BuildSceneNow(BuildRequest request) {
+        float requestedIntensity = Mathf.Clamp01(request.intensity ?? 0.5f);
         string env = request.scene.environment;
+        request.scene.environment = env;
 
         Debug.Log($"[HttpServer] POST /build-scene received");
 
@@ -140,6 +158,8 @@ public class SceneBuildController : MonoBehaviour {
             };
         }
 
+        lastRuntimeBuildRequest = CreateReplayableBuildRequest(request, env, requestedIntensity);
+
         // Scene loading can finish on a later frame, so defer completion for scene-based environments.
         if (!string.IsNullOrEmpty(entry.sceneName)) {
             StartCoroutine(FinalizeBuildAfterSceneLoad(entry, request));
@@ -188,18 +208,47 @@ public class SceneBuildController : MonoBehaviour {
         }
 
         float intensity = Mathf.Clamp01(request.intensity ?? 0.5f);
-        var objectsToSpawn = BuildObjectsToSpawn(request.scene);
+        activeEnvironmentEntry = entry;
+        currentRuntimeIntensity = intensity;
+
+        PositionPlayerForCurrentScene(intensity, forceSafeSpawn: true);
+        ValidateBaseSceneRequirements();
+
         bool isPictureRoom = IsPictureRoomEnvironment(entry?.environmentId) ||
                              IsPictureRoomEnvironment(request.scene?.environment);
-
-        if (isPictureRoom)
-            objectsToSpawn = FilterOutPictureRoomFrameObjects(objectsToSpawn);
 
         var spawner = EnsureObjectSpawner();
         var spawnParent = FindEnvironmentAnchor(entry);
 
         if (spawner != null)
             spawner.SetSpawnParent(spawnParent);
+
+        if (isPictureRoom) {
+            var prompts = request.scene?.picturePrompts;
+            if (prompts == null || prompts.Length == 0) {
+                return new BuildResponse {
+                    status = "error",
+                    error = "Picture Room only accepts picture prompts. Provide scene.picturePrompts (or picture1..picture7)."
+                };
+            }
+
+            // Picture Room is image-prompt-only: do not run AI/object spawning here.
+            if (spawner != null)
+                spawner.ClearSpawnedObjects();
+
+            ApplyRuntimeIntensity(intensity, "build-scene");
+            TryStartPictureRoomImageGeneration(entry, request);
+
+            string previewUrlPictureRoom = request.requestPreview ? PreviewCaptureService.Instance.Capture() : "";
+            Debug.Log("[SceneBuild] Picture Room prompt-only flow completed");
+
+            return new BuildResponse {
+                status = "ok",
+                previewURL = previewUrlPictureRoom
+            };
+        }
+
+        var objectsToSpawn = BuildObjectsToSpawn(request.scene);
 
         if (spawnParent == null) {
             objectsToSpawn = MapObjectsToEnvironmentSpace(entry, objectsToSpawn);
@@ -223,11 +272,13 @@ public class SceneBuildController : MonoBehaviour {
 
             _ = PlaceObjectsWithAIOrFallback(spawner, objectsToSpawn ?? Array.Empty<SceneObjectData>(), intensity, request);
         } else {
-            Debug.LogWarning("[SceneBuild] No sceneObjects/sceneTriggers or placement description to spawn");
+            // MERN may intentionally send only environment + intensity.
+            if (spawner != null)
+                spawner.ClearSpawnedObjects();
+            Debug.Log("[SceneBuild] No placement payload provided; applied environment + intensity only.");
         }
 
-        // Apply intensity to phobia controller
-        PhobiaController.Instance?.ApplyIntensity(intensity);
+        ApplyRuntimeIntensity(intensity, "build-scene");
 
         TryStartPictureRoomImageGeneration(entry, request);
 
@@ -300,6 +351,159 @@ public class SceneBuildController : MonoBehaviour {
         return NormalizeEnvironmentIdForComparison(environmentId) == "pictureroom";
     }
 
+    string ResolveEnvironmentForIntensity(string requestedEnvironment, float intensity) {
+        if (!enableAutomaticEnvironmentProgression)
+            return requestedEnvironment;
+
+        string normalized = NormalizeEnvironmentIdForComparison(requestedEnvironment);
+
+        // Arachnophobia progression: start in Picture Room, then move to House.
+        bool arachTrack = normalized == "pictureroom" ||
+                          normalized == "livingroom" ||
+                          normalized == "house" ||
+                          normalized == "arachnophobia";
+        if (arachTrack) {
+            string preferred = intensity <= arachnophobiaPictureRoomMaxIntensity ? "picture_room" : "house";
+            var preferredEntry = FindEnvironmentEntry(preferred);
+            if (preferredEntry != null)
+                return preferredEntry.environmentId;
+        }
+
+        // Aviophobia progression: airport first, airplane at higher intensity.
+        bool avioTrack = normalized == "airport" ||
+                         normalized == "airplane" ||
+                         normalized == "aviophobia";
+        if (avioTrack) {
+            string preferred = intensity <= aviophobiaAirportMaxIntensity ? "airport" : "airplane";
+            var preferredEntry = FindEnvironmentEntry(preferred);
+            if (preferredEntry != null)
+                return preferredEntry.environmentId;
+        }
+
+        return requestedEnvironment;
+    }
+
+    public BuildResponse SetManualIntensity(float intensity, bool repositionPlayer = true) {
+        if (activeEnvironmentEntry == null) {
+            return new BuildResponse {
+                status = "error",
+                error = "No active environment loaded; build a scene first"
+            };
+        }
+
+        float clamped = Mathf.Clamp01(intensity);
+        var transition = TryTransitionEnvironmentForIntensity(clamped, "manual");
+        if (transition != null)
+            return transition;
+
+        ApplyRuntimeIntensity(clamped, "manual");
+        if (repositionPlayer)
+            PositionPlayerForCurrentScene(currentRuntimeIntensity, forceSafeSpawn: false);
+
+        return new BuildResponse {
+            status = "ok",
+            message = $"Intensity set to {currentRuntimeIntensity:F2}"
+        };
+    }
+
+    public BuildResponse UpdateBiometricAndAdjustIntensity(float heartRate, float gsr, bool autoEscalate = true, bool autoDeescalate = true) {
+        if (activeEnvironmentEntry == null) {
+            return new BuildResponse {
+                status = "error",
+                error = "No active environment loaded; build a scene first"
+            };
+        }
+
+        float hrScore = Mathf.InverseLerp(heartRateResting, heartRateMax, heartRate);
+        float gsrScore = Mathf.InverseLerp(gsrBaseline, gsrBaseline * 3f, gsr);
+        float anxietyScore = Mathf.Clamp01((hrScore * 0.6f) + (gsrScore * 0.4f));
+
+        float target = currentRuntimeIntensity;
+        if (autoDeescalate && anxietyScore > 0.8f)
+            target -= autoDeescalateRate;
+        else if (autoEscalate && anxietyScore < 0.3f)
+            target += autoEscalateRate;
+
+        var transition = TryTransitionEnvironmentForIntensity(target, "biometric");
+        if (transition != null)
+            return transition;
+
+        ApplyRuntimeIntensity(target, "biometric");
+        PositionPlayerForCurrentScene(currentRuntimeIntensity, forceSafeSpawn: false);
+
+        return new BuildResponse {
+            status = "ok",
+            message = $"Biometric update applied. Anxiety={anxietyScore:F2}, Intensity={currentRuntimeIntensity:F2}"
+        };
+    }
+
+    public void ApplyRuntimeIntensity(float intensity, string source = "runtime") {
+        currentRuntimeIntensity = Mathf.Clamp01(intensity);
+        PhobiaController.Instance?.ApplyIntensity(currentRuntimeIntensity);
+
+        // Acrophobia uses position progression with intensity.
+        PositionPlayerForCurrentScene(currentRuntimeIntensity, forceSafeSpawn: false);
+        Debug.Log($"[SceneBuild] Runtime intensity ({source}) = {currentRuntimeIntensity:F2}");
+    }
+
+    BuildRequest CreateReplayableBuildRequest(BuildRequest source, string resolvedEnvironment, float intensity) {
+        if (source == null)
+            return null;
+
+        BuildRequest clone;
+        try {
+            clone = JsonConvert.DeserializeObject<BuildRequest>(JsonConvert.SerializeObject(source));
+        } catch {
+            clone = new BuildRequest {
+                scene = new SceneData()
+            };
+        }
+
+        clone.scene ??= new SceneData();
+        clone.scene.environment = resolvedEnvironment;
+        clone.intensity = Mathf.Clamp01(intensity);
+        clone.requestPreview = false;
+
+        if (string.IsNullOrWhiteSpace(clone.scene.placementText) && !string.IsNullOrWhiteSpace(clone.placementText))
+            clone.scene.placementText = clone.placementText;
+
+        return clone;
+    }
+
+    BuildResponse TryTransitionEnvironmentForIntensity(float targetIntensity, string source) {
+        if (!enableAutomaticEnvironmentProgression)
+            return null;
+
+        if (activeEnvironmentEntry == null || lastRuntimeBuildRequest?.scene == null)
+            return null;
+
+        if (intensityTransitionInProgress)
+            return new BuildResponse {
+                status = "ok",
+                message = "Intensity transition already in progress"
+            };
+
+        string currentEnv = activeEnvironmentEntry.environmentId;
+        string desiredEnv = ResolveEnvironmentForIntensity(currentEnv, targetIntensity);
+
+        if (NormalizeEnvironmentIdForComparison(currentEnv) == NormalizeEnvironmentIdForComparison(desiredEnv))
+            return null;
+
+        intensityTransitionInProgress = true;
+        try {
+            var replay = CreateReplayableBuildRequest(lastRuntimeBuildRequest, desiredEnv, targetIntensity);
+            var result = BuildSceneNow(replay);
+
+            if (result != null && result.status == "ok") {
+                result.message = $"Scene transitioned from '{currentEnv}' to '{desiredEnv}' due to {source} intensity update";
+            }
+
+            return result;
+        } finally {
+            intensityTransitionInProgress = false;
+        }
+    }
+
     static string NormalizeEnvironmentIdForComparison(string value) {
         if (string.IsNullOrWhiteSpace(value))
             return "";
@@ -326,6 +530,13 @@ public class SceneBuildController : MonoBehaviour {
 
         objectsToSpawn ??= Array.Empty<SceneObjectData>();
 
+        string placementText = request?.scene?.placementText ?? request?.placementText;
+        SceneObjectData[] fallbackCandidates = objectsToSpawn;
+        if ((fallbackCandidates == null || fallbackCandidates.Length == 0) && hasPlacementDescription) {
+            fallbackCandidates = InferObjectsFromPlacementDescription(placementText);
+            Debug.Log($"[SceneBuild] Inferred {fallbackCandidates?.Length ?? 0} fallback candidates from therapist text");
+        }
+
         bool aiPlaced = false;
         bool aiAttempted = false;
 
@@ -335,7 +546,6 @@ public class SceneBuildController : MonoBehaviour {
             try {
                 string environmentId = ResolveActiveEnvironmentId(request);
 
-                string placementText = request?.scene?.placementText ?? request?.placementText;
                 var aiTask = ai.PlaceObjectsWithAI(objectsToSpawn, intensity, environmentId, placementText);
                 var completed = await Task.WhenAny(aiTask, Task.Delay(TimeSpan.FromSeconds(15)));
                 if (completed == aiTask) {
@@ -357,11 +567,19 @@ public class SceneBuildController : MonoBehaviour {
 
         if (!aiPlaced) {
             if (!aiAttempted) {
-                Debug.LogWarning("[SceneBuild] AI placement is disabled or unavailable; AI-only mode skips object spawning.");
+                Debug.LogWarning("[SceneBuild] AI placement is disabled or unavailable; trying Objaverse-enabled fallback spawner.");
+                if (fallbackCandidates != null && fallbackCandidates.Length > 0) {
+                    var fallbackSummary = await spawner.SpawnObjectsWithObjaverseFallback(fallbackCandidates);
+                    Debug.Log($"[SceneBuild] Fallback spawn summary: local={fallbackSummary.localCount}, objaverse={fallbackSummary.objaverseCount}, skipped={fallbackSummary.placeholderCount}");
+                }
                 return;
             }
 
-            Debug.LogWarning("[SceneBuild] AI placement did not produce spawnable objects; AI-only mode skips fallback spawning.");
+            Debug.LogWarning("[SceneBuild] AI placement did not produce spawnable objects; trying Objaverse-enabled fallback spawner.");
+            if (fallbackCandidates != null && fallbackCandidates.Length > 0) {
+                var fallbackSummary = await spawner.SpawnObjectsWithObjaverseFallback(fallbackCandidates);
+                Debug.Log($"[SceneBuild] Fallback spawn summary: local={fallbackSummary.localCount}, objaverse={fallbackSummary.objaverseCount}, skipped={fallbackSummary.placeholderCount}");
+            }
             return;
         } else {
             Debug.Log($"[SceneBuild] AI placement succeeded with {CountSpawnedChildren()} hierarchy objects");
@@ -867,9 +1085,26 @@ public class SceneBuildController : MonoBehaviour {
         return null; // Valid
     }
 
-    static bool IsRelaxationSceneActive() {
+    static bool IsTherapistSelectionSceneActive() {
         var active = SceneManager.GetActiveScene();
-        return active.IsValid() && active.name == "RelaxationScene";
+        if (!active.IsValid())
+            return false;
+
+        string normalized = NormalizeSceneName(active.name);
+        return normalized == "relaxationscene" ||
+               normalized == "demo01" ||
+               normalized == "demo1";
+    }
+
+    static string NormalizeSceneName(string value) {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return value.Trim()
+                    .ToLowerInvariant()
+                    .Replace("_", "")
+                    .Replace("-", "")
+                    .Replace(" ", "");
     }
 
     SceneObjectData[] BuildObjectsToSpawn(SceneData scene) {
@@ -981,6 +1216,7 @@ public class SceneBuildController : MonoBehaviour {
         if (!string.IsNullOrEmpty(entry.sceneName)) {
             // Load as a separate Unity scene
             SceneManager.LoadScene(entry.sceneName);
+            EnsureSingleAudioListener();
             StartCoroutine(FramePlayerToSceneContentNextFrame(entry.environmentId));
             Debug.Log($"[SceneBuild] Loaded scene: {entry.sceneName}");
             return true;
@@ -1000,6 +1236,7 @@ public class SceneBuildController : MonoBehaviour {
 
             PrepareEnvironmentTransform(go);
             go.name = $"ENV_{entry.environmentId}";
+            EnsureSingleAudioListener();
             Debug.Log($"[SceneBuild] Instantiated prefab: {entry.prefab.name}");
             return true;
         }
@@ -1009,11 +1246,40 @@ public class SceneBuildController : MonoBehaviour {
         return false;
     }
 
+    static void EnsureSingleAudioListener() {
+        var listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (listeners == null || listeners.Length <= 1)
+            return;
+
+        int keepIndex = 0;
+        for (int i = 0; i < listeners.Length; i++) {
+            var listener = listeners[i];
+            if (listener == null)
+                continue;
+
+            var cam = listener.GetComponent<Camera>();
+            if (cam != null && cam.CompareTag("MainCamera")) {
+                keepIndex = i;
+                break;
+            }
+        }
+
+        for (int i = 0; i < listeners.Length; i++) {
+            var listener = listeners[i];
+            if (listener == null)
+                continue;
+
+            listener.enabled = (i == keepIndex);
+        }
+    }
+
     IEnumerator FramePlayerToSceneContentNextFrame(string environmentId) {
         // Let scene activation and camera tagging complete before framing.
         yield return null;
         yield return null;
+        EnsureSingleAudioListener();
         FramePlayerToSceneContent(environmentId);
+        EnsureSingleAudioListener();
     }
 
     void FramePlayerToSceneContent(string environmentId) {
@@ -1160,16 +1426,100 @@ public class SceneBuildController : MonoBehaviour {
             return;
         }
 
-        cam.transform.position = new Vector3(
+        var desired = new Vector3(
             cameraData.startPosition.x,
             cameraData.startPosition.y,
             cameraData.startPosition.z
         );
 
+        var rigRoot = FindXrRigRoot();
+        if (rigRoot != null) {
+            Vector3 delta = desired - cam.transform.position;
+            rigRoot.position += delta;
+        } else {
+            cam.transform.position = desired;
+        }
+
         Debug.Log($"[SceneBuild] Camera set to " +
                   $"({cameraData.startPosition.x}, " +
                   $"{cameraData.startPosition.y}, " +
                   $"{cameraData.startPosition.z})");
+    }
+
+    void PositionPlayerForCurrentScene(float intensity, bool forceSafeSpawn) {
+        var rigRoot = FindXrRigRoot();
+        if (rigRoot == null)
+            return;
+
+        var safe = FindSpawnPoint("SpawnPoint_Safe");
+        var medium = FindSpawnPoint("SpawnPoint_Medium");
+        var danger = FindSpawnPoint("SpawnPoint_Danger");
+
+        if (safe == null && medium == null && danger == null)
+            return;
+
+        if (forceSafeSpawn || !IsAcrophobiaEnvironment(activeEnvironmentEntry?.environmentId)) {
+            var target = safe ?? medium ?? danger;
+            MoveRigToPose(rigRoot, target);
+            return;
+        }
+
+        Transform from = safe ?? medium ?? danger;
+        Transform to = danger ?? medium ?? safe;
+        if (from == null || to == null)
+            return;
+
+        float t = Mathf.Clamp01(intensity);
+        rigRoot.position = Vector3.Lerp(from.position, to.position, t);
+        rigRoot.rotation = Quaternion.Slerp(from.rotation, to.rotation, t);
+    }
+
+    static void MoveRigToPose(Transform rigRoot, Transform target) {
+        if (rigRoot == null || target == null)
+            return;
+
+        rigRoot.position = target.position;
+        rigRoot.rotation = target.rotation;
+    }
+
+    static bool IsAcrophobiaEnvironment(string environmentId) {
+        string normalized = NormalizeEnvironmentIdForComparison(environmentId);
+        return normalized == "building" || normalized == "cliff" || normalized == "rooftop" || normalized == "acrophobia";
+    }
+
+    static Transform FindSpawnPoint(string name) {
+        var go = GameObject.Find(name);
+        return go != null ? go.transform : null;
+    }
+
+    static Transform FindXrRigRoot() {
+        var cam = Camera.main;
+        if (cam != null)
+            return cam.transform.root;
+
+        var origin = GameObject.Find("XR Origin") ?? GameObject.Find("XR Rig") ?? GameObject.Find("VR Player");
+        return origin != null ? origin.transform : null;
+    }
+
+    void ValidateBaseSceneRequirements() {
+        var issues = new List<string>();
+
+        if (Camera.main == null)
+            issues.Add("Missing MainCamera tag on active VR camera");
+
+        if (FindSpawnPoint("SpawnPoint_Safe") == null)
+            issues.Add("Missing SpawnPoint_Safe");
+        if (FindSpawnPoint("SpawnPoint_Medium") == null)
+            issues.Add("Missing SpawnPoint_Medium");
+        if (FindSpawnPoint("SpawnPoint_Danger") == null)
+            issues.Add("Missing SpawnPoint_Danger");
+
+        var listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (listeners != null && listeners.Length > 1)
+            issues.Add($"Multiple AudioListeners detected ({listeners.Length})");
+
+        if (issues.Count > 0)
+            Debug.LogWarning("[SceneBuild] VR readiness warnings: " + string.Join(" | ", issues));
     }
 
     EnvironmentRegistry.EnvironmentEntry FindEnvironmentEntry(string env) {

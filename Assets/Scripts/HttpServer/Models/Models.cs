@@ -326,6 +326,20 @@ public class PositionData {
     public float z;
 }
 
+[Serializable]
+public class IntensityRequest {
+    public float intensity;
+    public bool repositionPlayer = true;
+}
+
+[Serializable]
+public class BiometricRequest {
+    public float heartRate;
+    public float gsr;
+    public bool autoEscalate = true;
+    public bool autoDeescalate = true;
+}
+
 // ── Response Models ───────────────────────────────
 
 [Serializable]

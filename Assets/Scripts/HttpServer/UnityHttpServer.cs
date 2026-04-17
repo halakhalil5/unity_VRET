@@ -82,6 +82,8 @@ public class UnityHttpServer : MonoBehaviour {
             string responseJson = path switch {
                 "/status"      when req.HttpMethod == "GET"  => HandleStatus(),
                 "/build-scene" when req.HttpMethod == "POST" => await HandleBuildScene(body),
+                "/set-intensity" when req.HttpMethod == "POST" => await HandleSetIntensity(body),
+                "/biometric-update" when req.HttpMethod == "POST" => await HandleBiometricUpdate(body),
                 _ => NotFound()
             };
 
@@ -109,7 +111,7 @@ public class UnityHttpServer : MonoBehaviour {
         var response = new StatusResponse {
             status       = "ready",
             version      = "1.0.0",
-            capabilities = new[] { "build-scene", "capture-preview" }
+            capabilities = new[] { "build-scene", "capture-preview", "set-intensity", "biometric-update" }
         };
         Debug.Log("[HttpServer] /status called — returning ready");
         return JsonConvert.SerializeObject(response);
@@ -139,6 +141,64 @@ public class UnityHttpServer : MonoBehaviour {
         mainThreadQueue.Enqueue(() => {
             try {
                 var result = SceneBuildController.Instance.BuildScene(request);
+                tcs.SetResult(JsonConvert.SerializeObject(result));
+            } catch (Exception e) {
+                tcs.SetResult(Error(e.Message));
+            }
+        });
+
+        return await tcs.Task;
+    }
+
+    async Task<string> HandleSetIntensity(string body) {
+        if (string.IsNullOrEmpty(body))
+            return Error("Empty request body");
+
+        IntensityRequest request;
+        try {
+            request = JsonConvert.DeserializeObject<IntensityRequest>(body);
+        } catch (Exception e) {
+            return Error($"Invalid JSON: {e.Message}");
+        }
+
+        if (request == null)
+            return Error("Invalid payload for /set-intensity");
+
+        var tcs = new TaskCompletionSource<string>();
+        mainThreadQueue.Enqueue(() => {
+            try {
+                var result = SceneBuildController.Instance.SetManualIntensity(request.intensity, request.repositionPlayer);
+                tcs.SetResult(JsonConvert.SerializeObject(result));
+            } catch (Exception e) {
+                tcs.SetResult(Error(e.Message));
+            }
+        });
+
+        return await tcs.Task;
+    }
+
+    async Task<string> HandleBiometricUpdate(string body) {
+        if (string.IsNullOrEmpty(body))
+            return Error("Empty request body");
+
+        BiometricRequest request;
+        try {
+            request = JsonConvert.DeserializeObject<BiometricRequest>(body);
+        } catch (Exception e) {
+            return Error($"Invalid JSON: {e.Message}");
+        }
+
+        if (request == null)
+            return Error("Invalid payload for /biometric-update");
+
+        var tcs = new TaskCompletionSource<string>();
+        mainThreadQueue.Enqueue(() => {
+            try {
+                var result = SceneBuildController.Instance.UpdateBiometricAndAdjustIntensity(
+                    request.heartRate,
+                    request.gsr,
+                    request.autoEscalate,
+                    request.autoDeescalate);
                 tcs.SetResult(JsonConvert.SerializeObject(result));
             } catch (Exception e) {
                 tcs.SetResult(Error(e.Message));

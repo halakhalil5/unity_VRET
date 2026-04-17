@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class AIPlacementOrchestrator : MonoBehaviour {
 
@@ -16,6 +20,7 @@ public class AIPlacementOrchestrator : MonoBehaviour {
     [SerializeField] bool useAIPlacement = true;
     [SerializeField] string openRouterUrl = "https://openrouter.ai/api/v1/chat/completions";
     [SerializeField] string openRouterModel = "openai/gpt-4o";
+    [SerializeField] int openRouterMaxTokens = 1200;
 
     [Header("LLM Auth")]
     [SerializeField] bool includeOpenAIApiKeyHeader = true;
@@ -130,6 +135,27 @@ public class AIPlacementOrchestrator : MonoBehaviour {
         if (string.IsNullOrWhiteSpace(apiKey))
             throw new InvalidOperationException("Missing OpenRouter API key. Set openAIApiKey or OPENROUTER_API_KEY.");
 
+        int requestedMaxTokens = Mathf.Clamp(openRouterMaxTokens, 128, 4000);
+        var firstAttempt = await SendOpenRouterRequestAsync(prompt, apiKey, requestedMaxTokens);
+        if (firstAttempt.ok)
+            return ExtractOpenRouterContent(firstAttempt.response);
+
+        int affordableMaxTokens = TryExtractAffordableMaxTokens(firstAttempt.response);
+        if (firstAttempt.statusCode == 402 && affordableMaxTokens > 0 && affordableMaxTokens < requestedMaxTokens) {
+            int retryMaxTokens = Mathf.Max(128, affordableMaxTokens - 16);
+            Debug.LogWarning($"[AIPlacement] OpenRouter credits limited this request. Retrying with max_tokens={retryMaxTokens}.");
+
+            var retryAttempt = await SendOpenRouterRequestAsync(prompt, apiKey, retryMaxTokens);
+            if (retryAttempt.ok)
+                return ExtractOpenRouterContent(retryAttempt.response);
+
+            throw new InvalidOperationException($"OpenRouter returned {retryAttempt.statusCode}: {retryAttempt.response}");
+        }
+
+        throw new InvalidOperationException($"OpenRouter returned {firstAttempt.statusCode}: {firstAttempt.response}");
+    }
+
+    async Task<(bool ok, int statusCode, string response)> SendOpenRouterRequestAsync(string prompt, string apiKey, int maxTokens) {
         var requestBody = new {
             model = string.IsNullOrWhiteSpace(openRouterModel) ? "openai/gpt-4o" : openRouterModel,
             messages = new[] {
@@ -142,7 +168,7 @@ public class AIPlacementOrchestrator : MonoBehaviour {
                     content = prompt
                 }
             },
-            max_tokens = 2000,
+            max_tokens = maxTokens,
             temperature = 0.2f,
             response_format = new { type = "json_object" }
         };
@@ -162,10 +188,22 @@ public class AIPlacementOrchestrator : MonoBehaviour {
         using var response = await http.SendAsync(request);
         string responseStr = await response.Content.ReadAsStringAsync();
 
-        if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException($"OpenRouter returned {(int)response.StatusCode}: {responseStr}");
+        return (response.IsSuccessStatusCode, (int)response.StatusCode, responseStr);
+    }
 
-        return ExtractOpenRouterContent(responseStr);
+    static int TryExtractAffordableMaxTokens(string responseStr) {
+        if (string.IsNullOrWhiteSpace(responseStr))
+            return -1;
+
+        try {
+            var match = Regex.Match(responseStr, @"can only afford\s+(\d+)", RegexOptions.IgnoreCase);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int parsed))
+                return parsed;
+        } catch {
+            // Ignore parse issues and fall through.
+        }
+
+        return -1;
     }
 
     static string ExtractOpenRouterContent(string responseStr) {
@@ -456,25 +494,35 @@ Return placements for all NEW objects that should be added to the scene based on
         if (placement == null || string.IsNullOrEmpty(placementType))
             return false;
 
+        placementType = NormalizePlacementTypeForResolution(placementType);
+
         string resolvedId = string.IsNullOrWhiteSpace(placement.id)
             ? GeneratePlacementId(placementType, activePlacementText, placement.position)
             : placement.id;
 
-        GameObject go;
+        GameObject go = null;
         var resolution = LocalAssetResolver.Resolve(resolvedId, placementType);
-        if (resolution.found && resolution.asset != null && !string.IsNullOrEmpty(resolution.prefabPath)) {
-            var prefab = LoadPrefab(resolution.prefabPath);
-            if (prefab == null) {
-                Debug.LogWarning($"[AIPlacement] Prefab not loadable for '{placementType}' ({resolution.prefabPath})");
-                return false;
-            }
+        if (!resolution.found) {
+            // Retry with semantic id in case model-generated id is hash-like and not helpful.
+            var semanticId = NormalizeType(placementType);
+            if (!string.IsNullOrWhiteSpace(semanticId) && !semanticId.Equals(resolvedId, StringComparison.OrdinalIgnoreCase))
+                resolution = LocalAssetResolver.Resolve(semanticId, placementType);
+        }
 
-            var container = EnsureSpawnedObjectsContainer(activeEnvironmentRoot);
-            go = Instantiate(prefab, container, worldPositionStays: false);
-        } else {
+        if (resolution.found && resolution.asset != null && !string.IsNullOrEmpty(resolution.prefabPath)) {
+            var prefab = LoadPrefab(resolution.prefabPath, placementType, resolvedId);
+            if (prefab != null) {
+                var container = EnsureSpawnedObjectsContainer(activeEnvironmentRoot);
+                go = Instantiate(prefab, container, worldPositionStays: false);
+            } else {
+                Debug.LogWarning($"[AIPlacement] Prefab not loadable for '{placementType}' ({resolution.prefabPath}), trying Objaverse fallback");
+            }
+        }
+
+        if (go == null) {
             go = await TryLoadFromObjaverse(placementType, resolvedId);
             if (go == null) {
-                Debug.LogWarning($"[AIPlacement] No local or Objaverse asset found for '{placementType}', skipping");
+                Debug.LogWarning($"[AIPlacement] No local or Objaverse asset found for '{placementType}', skipping. Local resolver reason: {resolution?.reason}");
                 return false;
             }
 
@@ -523,10 +571,15 @@ Return placements for all NEW objects that should be added to the scene based on
         if (string.IsNullOrWhiteSpace(semanticId))
             semanticId = string.IsNullOrWhiteSpace(resolvedId) ? "unknown_object" : resolvedId;
 
+        var tagList = BuildObjaverseTags(placementType);
+        string category = placementType.Replace("_", " ").Trim();
+        if (string.IsNullOrWhiteSpace(category))
+            category = semanticId;
+
         var requestAsset = new SceneAsset {
             id = semanticId,
-            category = placementType,
-            tags = new[] { placementType },
+            category = category,
+            tags = tagList,
             preferredStyle = string.Empty
         };
 
@@ -558,6 +611,43 @@ Return placements for all NEW objects that should be added to the scene based on
             return placement.type.Trim();
 
         return null;
+    }
+
+    static string NormalizePlacementTypeForResolution(string value) {
+        if (string.IsNullOrWhiteSpace(value))
+            return value;
+
+        string normalized = value.Trim().ToLowerInvariant().Replace("-", "_").Replace(" ", "_");
+
+        // Common singularization for model outputs such as "cars", "chairs", "tables".
+        if (normalized.EndsWith("s") && normalized.Length > 3 && !normalized.EndsWith("ss"))
+            normalized = normalized.Substring(0, normalized.Length - 1);
+
+        switch (normalized) {
+            case "automobile":
+            case "vehicle":
+                return "car";
+            default:
+                return normalized;
+        }
+    }
+
+    static string[] BuildObjaverseTags(string placementType) {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string normalized = NormalizePlacementTypeForResolution(placementType) ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(normalized)) {
+            set.Add(normalized);
+            set.Add(normalized.Replace("_", " "));
+        }
+
+        string[] tokens = normalized.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < tokens.Length; i++)
+            set.Add(tokens[i]);
+
+        if (set.Count == 0)
+            set.Add("object");
+
+        return new List<string>(set).ToArray();
     }
 
     static Transform EnsureSpawnedObjectsContainer(Transform parent = null) {
@@ -646,29 +736,98 @@ Return placements for all NEW objects that should be added to the scene based on
         return best;
     }
 
-    static GameObject LoadPrefab(string addressablePath) {
+    static GameObject LoadPrefab(string addressablePath, string placementType = null, string resolvedId = null) {
         if (string.IsNullOrEmpty(addressablePath))
             return null;
 
-        var paths = new List<string> {
-            addressablePath
+        var pathVariants = GetResourcePathVariants(addressablePath);
+        for (int i = 0; i < pathVariants.Length; i++) {
+            var prefab = Resources.Load<GameObject>(pathVariants[i]);
+            if (prefab != null)
+                return prefab;
+        }
+
+#if UNITY_EDITOR
+        var descriptorPath = TryResolveActualObjectPathFromDescriptors(placementType, resolvedId, addressablePath);
+        if (!string.IsNullOrWhiteSpace(descriptorPath)) {
+            var descriptorAsset = AssetDatabase.LoadAssetAtPath<GameObject>(descriptorPath);
+            if (descriptorAsset != null)
+                return descriptorAsset;
+        }
+
+        string basePath = "Assets/" + addressablePath;
+        string[] editorCandidatePaths = {
+            basePath + ".prefab",
+            basePath + ".fbx",
+            basePath + ".FBX"
         };
 
-        if (!addressablePath.StartsWith("PreloadedAssets/", StringComparison.OrdinalIgnoreCase))
-            paths.Add($"PreloadedAssets/{addressablePath}");
-
-        if (addressablePath.StartsWith("PreloadedAssets/", StringComparison.OrdinalIgnoreCase)) {
-            paths.Add(addressablePath.Substring("PreloadedAssets/".Length));
+        for (int i = 0; i < editorCandidatePaths.Length; i++) {
+            var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(editorCandidatePaths[i]);
+            if (loaded != null)
+                return loaded;
         }
+#endif
+
+        return null;
+    }
+
+    static string[] GetResourcePathVariants(string addressablePath) {
+        var variants = new List<string>();
+
+        if (string.IsNullOrEmpty(addressablePath))
+            return variants.ToArray();
+
+        variants.Add(addressablePath);
+
+        if (addressablePath.StartsWith("PreloadedAssets/", StringComparison.OrdinalIgnoreCase))
+            variants.Add(addressablePath.Substring("PreloadedAssets/".Length));
+        else
+            variants.Add($"PreloadedAssets/{addressablePath}");
 
         int slash = addressablePath.LastIndexOf('/');
         if (slash >= 0 && slash < addressablePath.Length - 1)
-            paths.Add(addressablePath.Substring(slash + 1));
+            variants.Add(addressablePath.Substring(slash + 1));
 
-        for (int i = 0; i < paths.Count; i++) {
-            var prefab = Resources.Load<GameObject>(paths[i]);
-            if (prefab != null)
-                return prefab;
+        return variants.ToArray();
+    }
+
+    static string TryResolveActualObjectPathFromDescriptors(string placementType, string resolvedId, string addressablePath) {
+        try {
+            string preloadedRoot = Path.Combine(Application.dataPath, "PreloadedAssets");
+            if (!Directory.Exists(preloadedRoot))
+                return null;
+
+            string normalizedType = NormalizeType(placementType);
+            string normalizedId = NormalizeType(resolvedId);
+
+            var files = Directory.GetFiles(preloadedRoot, "*.json", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < files.Length; i++) {
+                string json = File.ReadAllText(files[i]);
+                if (string.IsNullOrWhiteSpace(json))
+                    continue;
+
+                JObject doc;
+                try {
+                    doc = JObject.Parse(json);
+                } catch {
+                    continue;
+                }
+
+                string id = doc["id"]?.ToString();
+                string key = doc["addressableKey"]?.ToString();
+                string actual = doc["actualObjectPath"]?.ToString();
+
+                bool idMatch = !string.IsNullOrWhiteSpace(id) &&
+                               (NormalizeType(id) == normalizedType || NormalizeType(id) == normalizedId);
+                bool keyMatch = !string.IsNullOrWhiteSpace(key) &&
+                                key.Equals(addressablePath, StringComparison.OrdinalIgnoreCase);
+
+                if ((idMatch || keyMatch) && !string.IsNullOrWhiteSpace(actual))
+                    return actual.Replace('\\', '/');
+            }
+        } catch {
+            // Non-fatal: just continue with other fallback loading strategies.
         }
 
         return null;

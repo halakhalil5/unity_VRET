@@ -31,6 +31,9 @@ MonoBehaviour:
   - environmentId: elevator
     sceneName: Elevator
     prefab: {fileID: 0}
+  - environmentId: house
+    sceneName: room
+    prefab: {fileID: 0}
   - environmentId: picture_room
     sceneName: PictureRoom
     prefab: {fileID: 0}

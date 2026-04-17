@@ -1,0 +1,34 @@
+﻿{
+    "id":  "spider_myoldone",
+    "actualObjectPath":  "Assets/fantasySpider/spider_myOldOne.FBX",
+    "sourceType":  "preloaded_local",
+    "addressableKey":  "PreloadedAssets/Spiders/spider_myOldOne",
+    "category":  "creature",
+    "tags":  [
+                 "spider",
+                 "arachnid",
+                 "creature",
+                 "animal"
+             ],
+    "style":  "realistic",
+    "bounds":  {
+                   "x":  0.5,
+                   "y":  0.3,
+                   "z":  0.6
+               },
+    "description":  "Local preloaded creature asset \u0027spider_myOldOne\u0027 from PreloadedAssets/Spiders/spider_myOldOne (asset path: Assets/fantasySpider/spider_myOldOne.FBX). Use this when therapist description requests matching terms: spider, arachnid, creature, animal. Prefer this local asset before Objaverse.",
+    "llmHints":  {
+                     "synonyms":  [
+                                      "spider",
+                                      "arachnid",
+                                      "creature",
+                                      "animal"
+                                  ],
+                     "excludeIfAlreadyInBaseScene":  true,
+                     "fallbackOrder":  [
+                                           "local",
+                                           "objaverse",
+                                           "skip"
+                                       ]
+                 }
+}

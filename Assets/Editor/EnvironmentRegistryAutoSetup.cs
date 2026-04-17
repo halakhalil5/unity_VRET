@@ -5,8 +5,29 @@ using UnityEngine;
 public static class EnvironmentRegistryAutoSetup {
 
     const string RegistryPath = "Assets/Resources/EnvironmentRegistry.asset";
-    const string LivingRoomScenePath = "Assets/BaseEnvironments/LivingRoom/LivingRoom.unity";
-    const string LivingRoomSceneName = "LivingRoom";
+
+    struct EnvironmentMapping {
+        public readonly string environmentId;
+        public readonly string sceneName;
+        public readonly string scenePath;
+
+        public EnvironmentMapping(string environmentId, string sceneName, string scenePath) {
+            this.environmentId = environmentId;
+            this.sceneName = sceneName;
+            this.scenePath = scenePath;
+        }
+    }
+
+    static readonly EnvironmentMapping[] EnvironmentMappings = {
+        new EnvironmentMapping("airplane", "Airplane", "Assets/BaseEnvironments/Airplane/Airplane.unity"),
+        new EnvironmentMapping("airport", "Airport", "Assets/BaseEnvironments/Airport/Airport.unity"),
+        new EnvironmentMapping("building", "Building", "Assets/BaseEnvironments/Building/Building.unity"),
+        new EnvironmentMapping("cliff", "cliff", "Assets/BaseEnvironments/Cliff/cliff.unity"),
+        new EnvironmentMapping("elevator", "Elevator", "Assets/BaseEnvironments/Elevator/Elevator.unity"),
+        new EnvironmentMapping("house", "room", "Assets/BaseEnvironments/House/room.unity"),
+        new EnvironmentMapping("living_room", "LivingRoom", "Assets/BaseEnvironments/LivingRoom/LivingRoom.unity"),
+        new EnvironmentMapping("picture_room", "PictureRoom", "Assets/BaseEnvironments/PictureRoom/PictureRoom.unity"),
+    };
 
     [InitializeOnLoadMethod]
     static void EnsureRegistry() {
@@ -22,33 +43,39 @@ public static class EnvironmentRegistryAutoSetup {
             AssetDatabase.SaveAssets();
         }
 
-        var livingRoomScene = AssetDatabase.LoadMainAssetAtPath(LivingRoomScenePath);
-        if (livingRoomScene == null) {
-            Debug.LogWarning("[SceneBuild] Living room scene not found at Assets/BaseEnvironments/LivingRoom/LivingRoom.unity");
-            return;
-        }
-
         if (registry.environments == null)
             registry.environments = new List<EnvironmentRegistry.EnvironmentEntry>();
 
-        var entry = registry.environments.Find(e => e.environmentId == "living_room");
-        if (entry == null) {
-            entry = new EnvironmentRegistry.EnvironmentEntry {
-                environmentId = "living_room",
-                sceneName = LivingRoomSceneName,
-                prefab = null
-            };
-            registry.environments.Add(entry);
+        var registryChanged = false;
+
+        foreach (var mapping in EnvironmentMappings) {
+            var scene = AssetDatabase.LoadMainAssetAtPath(mapping.scenePath);
+            if (scene == null) {
+                Debug.LogWarning($"[SceneBuild] Scene not found at {mapping.scenePath}");
+                continue;
+            }
+
+            var entry = registry.environments.Find(e => e.environmentId == mapping.environmentId);
+            if (entry == null) {
+                entry = new EnvironmentRegistry.EnvironmentEntry {
+                    environmentId = mapping.environmentId,
+                    sceneName = mapping.sceneName,
+                    prefab = null
+                };
+                registry.environments.Add(entry);
+                registryChanged = true;
+                Debug.Log($"[SceneBuild] Added {mapping.environmentId} mapping to EnvironmentRegistry.asset");
+            } else if (entry.sceneName != mapping.sceneName || entry.prefab != null) {
+                entry.sceneName = mapping.sceneName;
+                entry.prefab = null;
+                registryChanged = true;
+                Debug.Log($"[SceneBuild] Enforced {mapping.environmentId} mapping in EnvironmentRegistry.asset");
+            }
+        }
+
+        if (registryChanged) {
             EditorUtility.SetDirty(registry);
             AssetDatabase.SaveAssets();
-            Debug.Log("[SceneBuild] Added living_room mapping to EnvironmentRegistry.asset");
-        } else {
-            // Always enforce scene mapping to keep therapist flow scene-based.
-            entry.sceneName = LivingRoomSceneName;
-            entry.prefab = null;
-            EditorUtility.SetDirty(registry);
-            AssetDatabase.SaveAssets();
-            Debug.Log("[SceneBuild] Enforced living_room mapping in EnvironmentRegistry.asset");
         }
     }
 }

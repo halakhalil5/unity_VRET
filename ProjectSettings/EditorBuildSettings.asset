@@ -27,6 +27,9 @@ EditorBuildSettings:
     path: Assets/BaseEnvironments/Elevator/Elevator.unity
     guid: 89922cca3b321674fb81f5af7ce1c28f
   - enabled: 1
+    path: Assets/BaseEnvironments/House/room.unity
+    guid: 6f0f0d26d3eb0dd4d94a258ea5d2f9b0
+  - enabled: 1
     path: Assets/BaseEnvironments/PictureRoom/PictureRoom.unity
     guid: 963bed45c3ac0da4aa03991ba0d4e19c
   - enabled: 1

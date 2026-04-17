@@ -31,14 +31,16 @@ Primary runtime scene entry points: Assets/Scenes/RelaxationScene.unity, Assets/
 
 Core behavior:
 - Unity starts an in-process HTTP server on localhost:8080 via HttpServerBootstrap.
-- API supports GET /status and POST /build-scene.
+- API supports GET /status and POST /build-scene, POST /set-intensity, POST /biometric-update.
 - POST /build-scene receives JSON (BuildRequest), validates it, resolves environment from EnvironmentRegistry, loads scene/prefab, and spawns objects.
 - Object spawn path:
   1) Try AI placement through MERN endpoint (AIPlacementOrchestrator -> http://localhost:5000/api/ai-placement).
-  2) If AI fails/timeouts, AI-only mode skips spawning (no ObjectSpawner placement fallback).
+  2) If AI fails/timeouts, fallback uses ObjectSpawner with local+Objaverse resolution.
 - Local object resolution uses StreamingAssets/AssetManifest.json and Resources-loaded prefabs.
-- Exposure intensity (0.0-1.0) is applied through PhobiaController.
+- Exposure intensity (0.0-1.0) is applied through PhobiaController and can trigger scene progression (PictureRoom -> House for arachnophobia, Airport -> Airplane for aviophobia).
 - Picture Room environment can preload/generate 7 images via image API (default http://127.0.0.1:8000/generate).
+- MERN can send only `environment` + `intensity`; Unity treats this as a valid request and applies environment + intensity without requiring placement objects.
+- Automatic intensity-based environment progression is optional and disabled by default in `SceneBuildController` (`enableAutomaticEnvironmentProgression = false`) so MERN remains the source of truth.
 
 Important folders:
 - Assets/Scripts/HttpServer: runtime HTTP/API orchestration
@@ -144,7 +146,7 @@ Example response:
 {
   "status": "ready",
   "version": "1.0.0",
-  "capabilities": ["build-scene", "capture-preview"]
+  "capabilities": ["build-scene", "capture-preview", "set-intensity", "biometric-update"]
 }
 ```
 
@@ -193,12 +195,53 @@ Example error:
 }
 ```
 
+### `POST /set-intensity`
+
+Updates runtime intensity without rebuilding the scene.
+
+```json
+{
+  "intensity": 0.62,
+  "repositionPlayer": true
+}
+```
+
+### `POST /biometric-update`
+
+Applies biometrics (heart rate + GSR) to auto-adjust intensity.
+
+```json
+{
+  "heartRate": 96,
+  "gsr": 1.8,
+  "autoEscalate": true,
+  "autoDeescalate": true
+}
+```
+
+## Intensity Scene Progression
+
+- Arachnophobia progression is intensity-gated at scene selection time:
+  - low intensity uses `picture_room`
+  - higher intensity uses `house`
+- Aviophobia progression is intensity-gated at scene selection time:
+  - low intensity uses `airport`
+  - higher intensity uses `airplane`
+- Runtime intensity always clamps to `0.0-1.0` and re-applies phobia behavior immediately.
+- Player movement is VR-safe:
+  - camera is not moved directly
+  - XR rig root is moved
+  - for acrophobia, rig position lerps between `SpawnPoint_Safe` and `SpawnPoint_Danger`
+  - non-acrophobia scenes snap to safe spawn when available
+
 ## Key Data Sources
 
 ### Environment Registry
 - Asset path: `Assets/Resources/EnvironmentRegistry.asset`
 - Type: `EnvironmentRegistry` ScriptableObject
 - Maps `environmentId` to `sceneName` or `prefab`
+- Current scene-backed mappings include `airplane`, `airport`, `building`, `cliff`, `elevator`, `house`, `living_room`, and `picture_room`.
+- `Assets/Editor/EnvironmentRegistryAutoSetup.cs` keeps those mappings synchronized in the editor.
 
 ### Asset Manifest
 - Path: `Assets/StreamingAssets/AssetManifest.json`
@@ -225,6 +268,10 @@ Each base environment now has a JSON definition with explicit object anchors and
   - Defines aisle, left/right windows, seat rows, overhead bins, cockpit entry, and ceiling anchors.
 - `Assets/BaseEnvironments/Building/Building_Config.json`
   - Defines lobby center, stair landing, balcony edge, rooftop center, window view, safety rail, warning sign, and elevator entry anchors.
+  - Also includes `scene_model_part` entries extracted from `rooftop.glb` mesh centers for rooftop geometry context.
+- `Assets/BaseEnvironments/House/House_Config.json`
+  - Includes scene camera/light anchors plus detailed `scene_model_part` entries extracted from `modernliving.glb` mesh centers.
+  - Uses Sketchfab source attribution metadata and per-part positions to improve AI spatial context.
 - `Assets/BaseEnvironments/PictureRoom/PictureRoom_Config.json`
   - Defines wall frames, center surface, doorway, chair, and ceiling lamp anchors with local positions.
 - `Assets/BaseEnvironments/Cliff/Cliff_Config.json`
