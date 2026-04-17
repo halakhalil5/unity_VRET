@@ -83,6 +83,13 @@ This enables gradual, programmable exposure scenarios for VR therapy.
 - Rendering: URP (`com.unity.render-pipelines.universal`)
 - Optional tooling: `com.ivanmurzak.unity.mcp`
 
+## Large Assets
+
+This repository uses Git LFS for oversized binary assets that exceed GitHub's normal blob limits.
+
+- Current LFS-managed model asset: `Assets/BaseEnvironments/LivingRoom/room.obj`
+- Add future large `.obj`, `.fbx`, `.glb`, or texture assets to LFS before committing them
+
 ## Runtime Architecture
 
 ### 1) Bootstrap
